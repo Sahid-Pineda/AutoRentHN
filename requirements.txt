@@ -1,0 +1,4 @@
+Django==5.0.14
+pyodbc==5.2.0
+mssql-django==1.5
+bcrypt==4.3.0

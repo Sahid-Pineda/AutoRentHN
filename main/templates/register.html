@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Registro de Usuario</h2>
+<form method="POST" action="{% url 'register' %}">
+    {% csrf_token %}
+    <input type="text" name="primer_nombre" placeholder="Primer Nombre" required>
+    <input type="text" name="segundo_nombre" placeholder="Segundo Nombre">
+    <input type="text" name="primer_apellido" placeholder="Primer Apellido" required>
+    <input type="text" name="segundo_apellido" placeholder="Segundo Apellido">
+    <input type="text" name="telefono" placeholder="Teléfono" required>
+
+    <!-- Dirección -->
+    <input type="text" name="descripcion" placeholder="Dirección exacta" required>
+
+    <!-- Selects en cascada -->
+
+    <label>Colonia:</label>
+    <select id="colonia_id" name="colonia_id" required>
+        <option value="">--Selecciona una colonia primero--</option>
+        {% for colonia in colonias %}
+        <option value="{{ colonia.colonia_id }}">[{{ colonia.colonia_id }}] {{ colonia.nombre }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Ciudad:</label>
+    <select id="ciudad" name="ciudad_id" required>
+        <option value="">--Selecciona una ciudad primero--</option>
+        {% for ciudad in ciudades %}
+        <option value="{{ ciudad.ciudad_id }}">[{{ ciudad.ciudad_id }}] {{ ciudad.nombre }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Departamento:</label>
+    <select id="departamento" name="departamento_id" required>
+        <option value="">--Selecciona un departamento primero--</option>
+        {% for departamento in departamentos %}
+        <option value="{{ departamento.departamento_id }}">
+            [{{ departamento.departamento_id }}] {{ departamento.nombre }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label>País:</label>
+    <select id="pais" name="pais_id" required>
+        <option value="">--Selecciona un país primero--</option>
+        {% for pais in paises %}
+        <option value="{{ pais.pais_id }}">[{{ pais.pais_id }}] {{ pais.nombre }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Tipo Exoneración:</label>
+    <select id="tipo_exoneracion" name="tipo_exoneracion" required>
+        <option value="">--Selecciona un tipo de exoneración--</option>
+        {% for tipo in tipo_exoneracion %}
+        <option value="{{ tipo.tipo_exoneracion_id }}">{{ tipo.nombre }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Usuario -->
+    <input type="email" name="email" placeholder="Correo" required>
+    <input type="password" name="password" placeholder="Contraseña" required>
+
+    <button type="submit">Registrar</button>
+</form>
+
+<p>
+    ¿Tienes una cuenta?
+    <a href="{% url 'login' %}">Inicia sesión</a>
+</p>
+{% if error %}
+<p style="color: red;">{{ error }}</p>
+{% endif %}
+{% endblock %}
