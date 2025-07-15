@@ -1,74 +1,119 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Registro de Usuario</h2>
-<form method="POST" action="{% url 'register' %}">
-    {% csrf_token %}
-    <input type="text" name="primer_nombre" placeholder="Primer Nombre" required>
-    <input type="text" name="segundo_nombre" placeholder="Segundo Nombre">
-    <input type="text" name="primer_apellido" placeholder="Primer Apellido" required>
-    <input type="text" name="segundo_apellido" placeholder="Segundo Apellido">
-    <input type="text" name="telefono" placeholder="Teléfono" required>
+{% load static %}
 
-    <!-- Dirección -->
-    <input type="text" name="descripcion" placeholder="Dirección exacta" required>
+<div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-fit p-8 rounded-xl shadow-md bg-zinc-800/80 text-white">
+        <h2 class="text-4xl font-bold text-white">Registro de Usuario</h2>
 
-    <!-- Selects en cascada -->
+        <form method="POST" action="{% url 'register' %}" class="space-y-5">
+            {% csrf_token %}
 
-    <label>Colonia:</label>
-    <select id="colonia_id" name="colonia_id" required>
-        <option value="">--Selecciona una colonia primero--</option>
-        {% for colonia in colonias %}
-        <option value="{{ colonia.colonia_id }}">[{{ colonia.colonia_id }}] {{ colonia.nombre }}</option>
-        {% endfor %}
-    </select>
+            <!-- Nombres -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input class="bg-slate-600 p-2 rounded" type="text" name="primer_nombre" placeholder="Primer Nombre"
+                    required>
+                <input class="bg-slate-600 p-2 rounded" type="text" name="segundo_nombre" placeholder="Segundo Nombre">
+                <input class="bg-slate-600 p-2 rounded" type="text" name="primer_apellido" placeholder="Primer Apellido"
+                    required>
+                <input class="bg-slate-600 p-2 rounded" type="text" name="segundo_apellido"
+                    placeholder="Segundo Apellido">
+            </div>
 
-    <label>Ciudad:</label>
-    <select id="ciudad" name="ciudad_id" required>
-        <option value="">--Selecciona una ciudad primero--</option>
-        {% for ciudad in ciudades %}
-        <option value="{{ ciudad.ciudad_id }}">[{{ ciudad.ciudad_id }}] {{ ciudad.nombre }}</option>
-        {% endfor %}
-    </select>
+            <!-- Teléfono -->
+            <div>
+                <input class="bg-slate-600 p-2 w-full rounded" type="text" name="telefono" placeholder="Teléfono"
+                    required>
+            </div>
 
-    <label>Departamento:</label>
-    <select id="departamento" name="departamento_id" required>
-        <option value="">--Selecciona un departamento primero--</option>
-        {% for departamento in departamentos %}
-        <option value="{{ departamento.departamento_id }}">
-            [{{ departamento.departamento_id }}] {{ departamento.nombre }}
-        </option>
-        {% endfor %}
-    </select>
+            <!-- Dirección -->
+            <div>
+                <input class="bg-slate-600 p-2 w-full rounded" type="text" name="descripcion"
+                    placeholder="Dirección exacta" required>
+            </div>
 
-    <label>País:</label>
-    <select id="pais" name="pais_id" required>
-        <option value="">--Selecciona un país primero--</option>
-        {% for pais in paises %}
-        <option value="{{ pais.pais_id }}">[{{ pais.pais_id }}] {{ pais.nombre }}</option>
-        {% endfor %}
-    </select>
+            <!-- Selects en cascada -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-1">Colonia:</label>
+                    <select class="bg-slate-600 p-2 w-full rounded" id="colonia_id" name="colonia_id" required>
+                        <option value="">--Selecciona una colonia--</option>
+                        {% for colonia in colonias %}
+                        <option value="{{ colonia.colonia_id }}">[{{ colonia.colonia_id }}] {{ colonia.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-    <label>Tipo Exoneración:</label>
-    <select id="tipo_exoneracion" name="tipo_exoneracion" required>
-        <option value="">--Selecciona un tipo de exoneración--</option>
-        {% for tipo in tipo_exoneracion %}
-        <option value="{{ tipo.tipo_exoneracion_id }}">{{ tipo.nombre }}</option>
-        {% endfor %}
-    </select>
+                <div>
+                    <label class="block mb-1">Ciudad:</label>
+                    <select class="bg-slate-600 p-2 w-full rounded" id="ciudad_id" name="ciudad_id" required>
+                        <option value="">--Selecciona una ciudad--</option>
+                    </select>
+                </div>
 
-    <!-- Usuario -->
-    <input type="email" name="email" placeholder="Correo" required>
-    <input type="password" name="password" placeholder="Contraseña" required>
+                <div>
+                    <label class="block mb-1">Departamento:</label>
+                    <select class="bg-slate-600 p-2 w-full rounded" id="departamento_id" name="departamento_id"
+                        required>
+                        <option value="">--Selecciona un departamento--</option>
+                    </select>
+                </div>
 
-    <button type="submit">Registrar</button>
-</form>
+                <div>
+                    <label class="block mb-1">País:</label>
+                    <select class="bg-slate-600 p-2 w-full rounded" id="pais_id" name="pais_id" required>
+                        <option value="">--Selecciona un país--</option>
+                    </select>
+                </div>
+            </div>
 
-<p>
-    ¿Tienes una cuenta?
-    <a href="{% url 'login' %}">Inicia sesión</a>
-</p>
+            <!-- Tipo de exoneración -->
+            <div>
+                <label class="block mb-1">Tipo Exoneración:</label>
+                <select class="bg-slate-600 p-2 w-full rounded" id="tipo_exoneracion" name="tipo_exoneracion" required>
+                    <option value="">--Selecciona un tipo de exoneración--</option>
+                    {% for tipo in tipo_exoneracion %}
+                    <option value="{{ tipo.tipo_exoneracion_id }}">{{ tipo.tipo_exoneracion_id }} {{ tipo.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Usuario -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input class="bg-slate-600 p-2 rounded" type="email" name="email" placeholder="Correo" required>
+                <input class="bg-slate-600 p-2 rounded" type="password" name="password" placeholder="Contraseña"
+                    required>
+            </div>
+
+            <!-- Botón -->
+            <div class="text-center pt-4">
+                <button
+                    class="w-full py-2 bg-red-800 rounded-md text-white text-2xl hover:bg-green-800 transition-all duration-300"
+                    type="submit">
+                    Registrar
+                </button>
+            </div>
+        </form>
+        <!-- Login link -->
+        <div class="text-center mt-6">
+            <p class="text-xl text-white">
+                ¿Tienes una cuenta?
+                <a href="{% url 'login' %}" class="text-blue-400 hover:underline">Inicia sesión</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<!-- Mensaje de error -->
 {% if error %}
-<p style="color: red;">{{ error }}</p>
+<p class="text-red-500 text-center mt-2">{{ error }}</p>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/cascada_colonia.js' %}"></script>
 {% endblock %}

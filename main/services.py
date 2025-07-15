@@ -1,7 +1,7 @@
 import bcrypt
 import pyodbc
 import hashlib
-from .db_utils import execute_query, execute_insert, execute_insert_returning_id
+from .db_utils import execute_query, execute_insert, execute_insert_returning_id, fetch_one_dict
 from .queries import QUERIES
 
 # Modulo para manejar la logica de negocio como la autenticacion y creacion de usuarios.
@@ -75,3 +75,6 @@ def register_user(data):
     except (ValueError, pyodbc.Error) as e:
         print(f"Error al registrar usuario: {e}")
         raise
+
+def get_ubicaciones(colonia_id):
+    return fetch_one_dict(QUERIES['get_ubicaciones'], (colonia_id,))

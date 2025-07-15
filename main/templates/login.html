@@ -1,26 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Iniciar Sesión</h2>
+<div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-8 rounded-xl shadow-md bg-zinc-800/80 text-white">
 
-{% if error %}
-<p style="color: red;">{{ error }}</p>
-{% endif %}
+        <h2 class="text-3xl font-bold text-center mb-6">Iniciar Sesión</h2>
 
-<form method="POST" action="{% url 'login' %}">
-    {% csrf_token %}
+        {% if error %}
+        <div class="mb-4 text-center text-red-500 font-semibold">
+            {{ error }}
+        </div>
+        {% endif %}
 
-    <label for="email">Correo electrónico:</label>
-    <input type="email" id="email" name="email" required><br><br>
+        <form method="POST" action="{% url 'login' %}" class="space-y-5">
+            {% csrf_token %}
 
-    <label for="password">Contraseña:</label>
-    <input type="password" id="password" name="password" required><br><br>
+            <div>
+                <label for="email" class="block text-sm font-medium mb-1">Correo electrónico</label>
+                <input type="email" name="email" id="email" required
+                    class="w-full px-4 py-2 rounded bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
 
-    <button type="submit">Iniciar Sesión</button>
-</form>
+            <div>
+                <label for="password" class="block text-sm font-medium mb-1">Contraseña</label>
+                <input type="password" name="password" id="password" required
+                    class="w-full px-4 py-2 rounded bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
 
-<p>
-    ¿No tienes una cuenta?
-    <a href="{% url 'register' %}">Registrate</a>
-</p>
+            <button type="submit"
+                class="w-full bg-red-700 hover:bg-green-800 text-white font-semibold py-2 px-4 rounded transition-all duration-200">
+                Iniciar Sesión
+            </button>
+        </form>
+
+        <p class="text-center text-sm text-zinc-300 mt-6">
+            ¿No tienes una cuenta?
+            <a href="{% url 'register' %}" class="text-blue-400 hover:underline">Regístrate aquí</a>
+        </p>
+    </div>
+</div>
 {% endblock %}

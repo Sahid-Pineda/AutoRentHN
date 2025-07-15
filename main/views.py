@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from .db_utils import execute_query, execute_insert_returning_id
-from .services import hash_password, authenticate_user, register_user
+from .services import hash_password, authenticate_user, register_user, get_ubicaciones
 from .utils import login_required
-from django.http import HttpResponse
+from django.http import JsonResponse
 from .queries import QUERIES
 import pyodbc
 
@@ -32,7 +32,20 @@ def logout_view(request):
     return redirect('login')
 
 def register_view(request):
-    print("POST DATA:", request.POST)
+    # Obtener datos para el formulario de registro
+    colonias = execute_query(QUERIES['get_all_colonias'])
+    ciudades = execute_query(QUERIES['get_all_ciudades'])
+    departamentos = execute_query(QUERIES['get_all_departamentos'])
+    paises = execute_query(QUERIES['get_all_paises'])
+    tipo_exoneracion = execute_query(QUERIES['get_all_tipo_exoneracion'])
+
+    # Convertir los resultados a diccionarios para el template
+    colonias= [{'colonia_id': c[0], 'nombre': c[1]} for c in colonias]
+    ciudades = [{'ciudad_id': c[0], 'nombre': c[1]} for c in ciudades]
+    departamentos = [{'departamento_id': d[0], 'nombre': d[1]} for d in departamentos]
+    paises = [{'pais_id': p[0], 'nombre': p[1]} for p in paises]
+    tipo_exoneracion = [{'tipo_exoneracion_id': t[0], 'nombre': t[1]} for t in tipo_exoneracion]
+    
     if request.method == 'POST':
         data = {
             'primer_nombre': request.POST.get('primer_nombre'),
@@ -65,21 +78,7 @@ def register_view(request):
                 data[valor] = None
 
         register_user(data)
-        return HttpResponse("Usuario registrado exitosamente")
-
-    # Obtener datos para el formulario de registro
-    colonias = execute_query(QUERIES['get_all_colonias'])
-    ciudades = execute_query(QUERIES['get_all_ciudades'])
-    departamentos = execute_query(QUERIES['get_all_departamentos'])
-    paises = execute_query(QUERIES['get_all_paises'])
-    tipo_exoneracion = execute_query(QUERIES['get_all_tipo_exoneracion'])
-
-    # Convertir los resultados a diccionarios para el template
-    colonias= [{'colonia_id': c[0], 'nombre': c[1]} for c in colonias]
-    ciudades = [{'ciudad_id': c[0], 'nombre': c[1]} for c in ciudades]
-    departamentos = [{'departamento_id': d[0], 'nombre': d[1]} for d in departamentos]
-    paises = [{'pais_id': p[0], 'nombre': p[1]} for p in paises]
-    tipo_exoneracion = [{'tipo_exoneracion_id': t[0], 'nombre': t[1]} for t in tipo_exoneracion]
+        return redirect('login')
 
     return render(request, 'register.html', {
         'colonias': colonias,
@@ -88,3 +87,28 @@ def register_view(request):
         'paises': paises,
         'tipo_exoneracion': tipo_exoneracion
     })
+
+def get_ubicacion(request):
+    try:
+        colonia_id = request.GET.get('colonia_id')
+
+        datos = get_ubicaciones(colonia_id)
+
+        return JsonResponse ({
+            'ciudad': {
+                'id': datos['ciudad_id'],
+                'nombre': datos['ciudad_nombre']
+            },
+            'departamento': {
+                'id': datos['departamento_id'],
+                'nombre': datos['departamento_nombre']
+            },
+            'pais': {
+                'id': datos['pais_id'],
+                'nombre': datos['pais_nombre']
+            }
+        })
+    except Exception as e :
+        import traceback
+        print("🔥 ERROR EN VISTA obtener_ubicacion():")
+        traceback.print_exc()

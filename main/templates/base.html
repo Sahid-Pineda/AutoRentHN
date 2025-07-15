@@ -5,11 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoRentHN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% load static %}
 </head>
 
-<body>
+<body class="min-h-screen bg-gradient-to-b from-sky-950 to-sky-800 text-white">
     {% block content %}
     {% endblock %}
+    {% block extra_js %}
+    {% endblock %}
+    <script src="{% static 'js/cascada_colonia.js' %}"></script>
 </body>
 
 </html>

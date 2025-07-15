@@ -32,16 +32,34 @@ def execute_query(query, params=None):
         cursor.close()
         conn.close()
 
+def fetch_one_dict(query, params=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, params)
+        columns = [column[0] for column in cursor.description]
+        row = cursor.fetchone()
+        if row:
+            return dict(zip(columns, row))
+        return None
+    except pyodbc.Error as e:
+        print(f"Error al obtener un registro: {e}")
+        raise
+    finally:
+        cursor.close()
+        conn.close()
+
 def execute_insert(query, params=None):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        print(f"Ejecutando consulta: {query} con parámetros: {params}")
         if params:
             cursor.execute(query, params)
         else:
             cursor.execute(query)
-        conn.commit()
+        row = cursor.fetchone()
+        columns = [column[0] for column in cursor.description]
+        return dict(zip(columns, row))
     except pyodbc.Error as e:
         print(f"Error al insertar: {e}")
         raise
