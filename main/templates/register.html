@@ -75,7 +75,7 @@
                 <select class="bg-slate-600 p-2 w-full rounded" id="tipo_exoneracion" name="tipo_exoneracion" required>
                     <option value="">--Selecciona un tipo de exoneración--</option>
                     {% for tipo in tipo_exoneracion %}
-                    <option value="{{ tipo.tipo_exoneracion_id }}">{{ tipo.tipo_exoneracion_id }} {{ tipo.nombre }}
+                    <option value="{{ tipo.tipo_exoneracion_id }}">{{ tipo.tipo_exoneracion_id }} {{ tipo.nombre}}
                     </option>
                     {% endfor %}
                 </select>

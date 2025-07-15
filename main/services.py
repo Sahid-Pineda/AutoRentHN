@@ -58,13 +58,7 @@ def register_user(data):
             )
         )
 
-        tipo_exoneracion_id = execute_insert_returning_id(
-            QUERIES['insert_tipo_exoneracion'],
-            (
-                data['descripcion'],
-            )
-        )
-
+        tipo_exoneracion_id = int(data['tipo_exoneracion'])
         execute_insert(
             QUERIES['insert_client'],
             (

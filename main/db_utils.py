@@ -57,9 +57,7 @@ def execute_insert(query, params=None):
             cursor.execute(query, params)
         else:
             cursor.execute(query)
-        row = cursor.fetchone()
-        columns = [column[0] for column in cursor.description]
-        return dict(zip(columns, row))
+        conn.commit()
     except pyodbc.Error as e:
         print(f"Error al insertar: {e}")
         raise
