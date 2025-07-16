@@ -7,6 +7,7 @@ from .views import get_ubicacion
 urlpatterns = [
     path('', home_view, name='home'),
     path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
     path('register/', register_view, name='register'),
 
     # url js

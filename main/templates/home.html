@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% load static %}
+<a href="{% url 'logout' %}" class="inline-block px-4 py-2 bg-red-700 text-white rounded hover:bg-red-600 transition">
+    Cerrar sesión
+</a>
 <h2>Bienvenido a AutoRentHN</h2>
 <p>Felicitaciones, has iniciado sesión correctamente.</p>
+
+
 {% endblock %}
