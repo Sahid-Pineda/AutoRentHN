@@ -27,20 +27,27 @@
                     required>
             </div>
 
-            <!-- Dirección -->
-            <div>
-                <input class="bg-slate-600 p-2 w-full rounded" type="text" name="descripcion"
-                    placeholder="Dirección exacta" required>
-            </div>
 
             <!-- Selects en cascada -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block mb-1">Colonia:</label>
-                    <select class="bg-slate-600 p-2 w-full rounded" id="colonia_id" name="colonia_id" required>
-                        <option value="">--Selecciona una colonia--</option>
-                        {% for colonia in colonias %}
-                        <option value="{{ colonia.colonia_id }}">[{{ colonia.colonia_id }}] {{ colonia.nombre }}
+                    <label class="block mb-1">País:</label>
+                    <select class="bg-slate-600 p-2 w-full rounded" id="pais_id" name="pais_id" required>
+                        <option value="">--Selecciona un país--</option>
+                        {% for pais in paises %}
+                        <option value="{{ pais.pais_id }}">{{ pais.pais_id }}. {{ pais.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block mb-1">Departamento:</label>
+                    <select class="bg-slate-600 p-2 w-full rounded" id="departamento_id" name="departamento_id"
+                        required>
+                        <option value="">--Selecciona un departamento--</option>
+                        {% for departamento in departamentos %}
+                        <option value="{{ departamento.departamento_id }}">
+                            {{ departamento.departamento_id }}. {{ departamento.nombre }}
                         </option>
                         {% endfor %}
                     </select>
@@ -50,23 +57,32 @@
                     <label class="block mb-1">Ciudad:</label>
                     <select class="bg-slate-600 p-2 w-full rounded" id="ciudad_id" name="ciudad_id" required>
                         <option value="">--Selecciona una ciudad--</option>
+                        {% for ciudad in ciudades%}
+                        <option value="{{ ciudad.ciudad_id }}">
+                            {{ ciudad.ciudad_id }}. {{ ciudad.nombre }}
+                        </option>
+                        {% endfor %}
                     </select>
                 </div>
 
                 <div>
-                    <label class="block mb-1">Departamento:</label>
-                    <select class="bg-slate-600 p-2 w-full rounded" id="departamento_id" name="departamento_id"
-                        required>
-                        <option value="">--Selecciona un departamento--</option>
+                    <label class="block mb-1">Colonia:</label>
+                    <select class="bg-slate-600 p-2 w-full rounded" id="colonia_id" name="colonia_id" required>
+                        <option value="">--Selecciona una colonia--</option>
+                        {% for colonia in colonias %}
+                        <option value="colonia.colonia_id">{{colonia.colonia_id}}. {{colonia.nombre}}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
-                <div>
-                    <label class="block mb-1">País:</label>
-                    <select class="bg-slate-600 p-2 w-full rounded" id="pais_id" name="pais_id" required>
-                        <option value="">--Selecciona un país--</option>
-                    </select>
-                </div>
+
+
+            </div>
+
+            <!-- Dirección -->
+            <div>
+                <input class="bg-slate-600 p-2 w-full rounded" type="text" name="descripcion"
+                    placeholder="Dirección exacta" required>
             </div>
 
             <!-- Tipo de exoneración -->
@@ -112,8 +128,4 @@
 {% if error %}
 <p class="text-red-500 text-center mt-2">{{ error }}</p>
 {% endif %}
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/cascada_colonia.js' %}"></script>
 {% endblock %}

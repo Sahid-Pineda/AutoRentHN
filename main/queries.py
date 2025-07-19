@@ -9,18 +9,9 @@ QUERIES = {
     'get_all_departamentos': "SELECT * FROM Departamento",
     'get_all_paises': "SELECT * FROM Pais",
 
-    'get_ubicaciones':
-    """
-    SELECT 
-	ci.id_Ciudad AS ciudad_id, ci.Nombre AS ciudad_nombre,
-	d.id_Departamento AS departamento_id, d.Nombre AS departamento_nombre,
-	p.id_Pais AS pais_id, p.Nombre AS pais_nombre
-    FROM Colonia c
-    JOIN Ciudad ci ON c.Ciudad_id = ci.id_Ciudad
-    JOIN Departamento d ON ci.Departamento_id = d.id_Departamento
-    JOIN Pais p ON d.Pais_id = p.id_Pais
-    WHERE c.id_Colonia = ?;
-    """,
+    'obtener_departamento': "SELECT id_Departamento AS id, Nombre AS nombre FROM Departamento WHERE Pais_id = ?",
+    'obtener_ciudad': "SELECT id_Ciudad AS id, Nombre AS nombre FROM Ciudad WHERE Departamento_id = ?",
+    'obtener_colonia': "SELECT id_Colonia AS id, Nombre AS nombre FROM Colonia WHERE Ciudad_id = ?",
 
     # Consultas relacionadas con Persona
     "create_person":"INSERT INTO Persona (PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, Telefono, Direccion_id) VALUES (?, ?, ?, ?, ?, ?)",
@@ -39,4 +30,13 @@ QUERIES = {
     "insert_tipo_exoneracion": "INSERT INTO TipoExoneracion (Descripcion) VALUES (?)",
     'get_tipo_exoneracion_by_id': "SELECT TipoExoneracion_id FROM TipoExoneracion WHERE TipoExoneracion_id = ?",
     'get_all_tipo_exoneracion': "SELECT * FROM TipoExoneracion",
+
+    #Consulta para Vehiculo
+    'get_vehicle_by_marca': """
+    SELECT
+    ma.Marca_id AS id_Marca, ma.Nombre AS Nombre
+    FROM Modelo mo
+    JOIN Marca ma ON mo.Marca_id = ma.id_Marca
+    WHERE mo.id_Marca
+    """
 }

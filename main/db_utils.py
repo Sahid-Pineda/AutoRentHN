@@ -32,22 +32,22 @@ def execute_query(query, params=None):
         cursor.close()
         conn.close()
 
-def fetch_one_dict(query, params=None):
+def consultar_todas_filas_dict(query, params=None):
     conn = get_db_connection()
     cursor = conn.cursor()
-    try:
-        cursor.execute(query, params)
-        columns = [column[0] for column in cursor.description]
-        row = cursor.fetchone()
-        if row:
-            return dict(zip(columns, row))
-        return None
-    except pyodbc.Error as e:
-        print(f"Error al obtener un registro: {e}")
-        raise
-    finally:
-        cursor.close()
-        conn.close()
+    cursor.execute(query, params)
+
+    # Obtener nombres de columnas
+    columnas = [columna[0] for columna in cursor.description]
+
+    resultados = [
+        dict(zip(columnas, fila))
+        for fila in cursor.fetchall()
+    ]
+
+    cursor.close()
+    conn.close()
+    return resultados
 
 def execute_insert(query, params=None):
     conn = get_db_connection()

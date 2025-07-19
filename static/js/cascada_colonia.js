@@ -1,52 +1,59 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const seleccionColonia = document.getElementById("colonia_id");
-  const seleccionCiudad = document.getElementById("ciudad_id");
-  const seleccionDepartamento = document.getElementById("departamento_id");
   const seleccionPais = document.getElementById("pais_id");
+  const seleccionDepartamento = document.getElementById("departamento_id");
+  const seleccionCiudad = document.getElementById("ciudad_id");
+  const seleccionColonia = document.getElementById("colonia_id");
 
   // Limpia y asigna opción al vuelo
-  function setSelectValue(select, id, nombre) {
-    select.innerHTML = ""; // limpia opciones
-    if (id && nombre) {
-      const opt = document.createElement("option");
-      opt.value = id;
-      opt.textContent = nombre;
-      select.appendChild(opt);
-      select.value = id;
-    }
+  function limpiar_select(select, placeholder) {
+    select.innerHTML = `<option value="">--${placeholder}--</option>`;
   }
 
-  seleccionColonia.addEventListener("change", function () {
-    const coloniaId = this.value;
+  function llenar_select(select, data) {
+    limpiar_select(select, select.name.replace("_id", ""));
+    data.forEach((item) => {
+      const opcion = document.createElement("option");
+      opcion.value = item.id;
+      opcion.textContent = item.nombre;
+      select.appendChild(opcion);
+    });
+  }
 
-    if (coloniaId) {
-      fetch(`/api/get_ubicacion/?colonia_id=${coloniaId}`)
+  seleccionPais.addEventListener("change", function () {
+    const paisId = this.value;
+    limpiar_select(seleccionDepartamento, "Selecciona un departamento");
+    limpiar_select(seleccionCiudad, "Selecciona una ciudad");
+    limpiar_select(seleccionColonia, "Selecciona una colonia");
+
+    if (paisId) {
+      fetch(`/api/obtener-departamento/?pais_id=${paisId}`)
         .then((response) => response.json())
         .then((data) => {
-          if (data.error) {
-            console.error("Error:", data.error);
-            return;
-          }
-
-          setSelectValue(seleccionCiudad, data.ciudad.id, data.ciudad.nombre);
-          setSelectValue(
-            seleccionDepartamento,
-            data.departamento.id,
-            data.departamento.nombre
-          );
-          setSelectValue(seleccionPais, data.pais.id, data.pais.nombre);
-        })
-        .catch((error) => {
-          console.error("Error al obtener los datos de la colonia:", error);
+          llenar_select(seleccionDepartamento, data.departamentos);
         });
-    } else {
-      // Si se limpia la colonia, limpia también los demás
-      seleccionCiudad.innerHTML =
-        "<option value=''>--Selecciona una ciudad--</option>";
-      seleccionDepartamento.innerHTML =
-        "<option value=''>--Selecciona un departamento--</option>";
-      seleccionPais.innerHTML =
-        "<option value=''>--Selecciona un país--</option>";
+    }
+  });
+
+  seleccionDepartamento.addEventListener("change", function () {
+    const departamentoId = this.value;
+    limpiar_select(seleccionCiudad, "Selecciona una ciudad");
+    limpiar_select(seleccionColonia, "Selecciona una colonia");
+
+    if (departamentoId) {
+      fetch(`/api/obtener-ciudad/?departamento_id=${departamentoId}`)
+        .then((response) => response.json())
+        .then((data) => llenar_select(seleccionCiudad, data.ciudades));
+    }
+  });
+
+  seleccionCiudad.addEventListener("change", function () {
+    const ciudadId = this.value;
+    limpiar_select(seleccionColonia, "Selecciona una colonia");
+
+    if (ciudadId) {
+      fetch(`/api/obtener-colonia/?ciudad_id=${ciudadId}`)
+        .then((response) => response.json())
+        .then((data) => llenar_select(seleccionColonia, data.colonias));
     }
   });
 });
