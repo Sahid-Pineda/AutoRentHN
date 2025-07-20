@@ -9,7 +9,6 @@ import pyodbc
 # Create your views here.
 # El orden de trabajo es: Template -> View -> url -> service -> Query
 
-@login_required
 def home_view(request):
     return render(request, 'home.html')
 
@@ -18,18 +17,39 @@ def login_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = authenticate_user(email, password)
+        
         if user:
-            id_usuario, email = user
+            id_usuario, email, rol_id = user
             request.session['user_id'] = id_usuario
             request.session['user_email'] = email
-            return redirect('home')
+            request.session['rol_id'] = rol_id
+
+            if rol_id == 1:
+                return redirect('admin_view')
+            elif rol_id == 2:
+                return redirect('cliente_view')
+            elif rol_id == 3:
+                return redirect('empleado_view')
         else:
             return render(request, 'login.html', {'error': 'Credenciales inválidas'})
     return render(request, 'login.html')
 
+@login_required
+def admin_view(request):
+    return render(request, 'admin_home.html')
+
+@login_required
+def cliente_view(request):
+    return render(request, 'cliente_home.html')
+
+@login_required
+def empleado_view(request):
+    return render(request, 'empleado_home.html')
+
+@login_required
 def logout_view(request):
     request.session.flush()  # Elimina todos los datos de la sesión
-    return redirect('login')
+    return redirect('home')
 
 def register_view(request):
     # Obtener datos para el formulario de registro
@@ -58,7 +78,7 @@ def register_view(request):
             'ciudad_id': request.POST.get('ciudad_id'),
             'departamento_id': request.POST.get('departamento_id'),
             'pais_id': request.POST.get('pais_id'),
-            'tipo_exoneracion': request.POST.get('tipo_exoneracion'),
+            'sexo': request.POST.get('sexo'),
             'email': request.POST.get('email'),
             'password': request.POST.get('password')
         }
@@ -68,7 +88,7 @@ def register_view(request):
 
     
         # Convertir y validar IDs de los datos
-        for valor in ['colonia_id', 'ciudad_id', 'departamento_id', 'pais_id', 'tipo_exoneracion']:
+        for valor in ['colonia_id', 'ciudad_id', 'departamento_id', 'pais_id']:
             if data[valor]:
                 try:
                     data[valor] = int(data[valor])
@@ -84,8 +104,7 @@ def register_view(request):
         'colonias': colonias,
         'ciudades': ciudades,
         'departamentos': departamentos,
-        'paises': paises,
-        'tipo_exoneracion': tipo_exoneracion
+        'paises': paises
     })
 
 def obtener_departamento(request):

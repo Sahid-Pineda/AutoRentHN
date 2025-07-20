@@ -1,12 +1,101 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% load static %}
-<a href="{% url 'logout' %}" class="inline-block px-4 py-2 bg-red-700 text-white rounded hover:bg-red-600 transition">
-    Cerrar sesión
-</a>
-<h2>Bienvenido a AutoRentHN</h2>
-<p>Felicitaciones, has iniciado sesión correctamente.</p>
+<div id="tsparticles" class="absolute top-0 left-0 w-full h-full -z-10"></div>
 
+<div class="flex flex-col items-center justify-center min-h-screen text-center px-4">
+    <h1 class="text-5xl font-bold mb-6 animate-fadeIn delay-100">
+        Bienvenido a <span class="text-cyan-400">AutoRentHN</span>
+    </h1>
+    <p class="text-lg text-gray-300 mb-10 max-w-2xl animate-fadeIn delay-300">
+        Tu plataforma confiable para alquilar y comprar vehículos en línea. ¡Rápido, fácil y seguro!
+    </p>
 
+    {% if not request.session.user_id %}
+    <div class="flex flex-col md:flex-row gap-6 animate-fadeIn delay-500">
+        <a href="{% url 'login' %}"
+            class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 px-10 rounded-full shadow-xl transition transform hover:scale-105 flex items-center gap-3">
+            <i class="fa-solid fa-rocket"></i> ¡Únete y empieza ahora!
+        </a>
+        <a href="{% url 'register' %}"
+            class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg transition transform hover:scale-105 flex items-center gap-3">
+            <i class="fa-solid fa-user-plus"></i> Crea tu cuenta gratis
+        </a>
+    </div>
+    {% endif %}
+
+    <p class="mt-10 text-sm text-gray-400 animate-fadeIn delay-700">
+        ¿Nuevo por aquí? Explorá lo que AutoRentHN puede hacer por vos.
+    </p>
+</div>
+
+<!-- Sección: Vehículos -->
+<section class="py-16 px-6 bg-sky-950 bg-opacity-60 backdrop-blur rounded-xl max-w-7xl mx-auto">
+    <h2 class="text-3xl font-bold text-center mb-10">Explora nuestros vehículos</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+        {% for car in cars %}
+        <div
+            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2">
+            <img src="{{ car.image_url }}" alt="{{ car.name }}" class="rounded mb-4">
+            <h3 class="text-xl font-semibold mb-2">{{ car.name }}</h3>
+            <p class="text-gray-300 text-sm mb-4">{{ car.description }}</p>
+            <a href="#"
+                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">Ver
+                más</a>
+        </div>
+        {% endfor %}
+
+        <div
+            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2">
+            <img src="https://placehold.co/600x400" alt="Toyota Corolla" class="rounded mb-4">
+            <h3 class="text-xl font-semibold mb-2">Toyota Corolla 2022</h3>
+            <p class="text-gray-300 text-sm mb-4">Eficiencia, comodidad y estilo para moverte por la ciudad.</p>
+            <a href="#"
+                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">Ver
+                más</a>
+        </div>
+
+        <div
+            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2">
+            <img src="https://placehold.co/600x400" alt="Hyundai Tucson" class="rounded mb-4">
+            <h3 class="text-xl font-semibold mb-2">Hyundai Tucson 2023</h3>
+            <p class="text-gray-300 text-sm mb-4">Perfecto para viajes largos con tu familia o amigos.</p>
+            <a href="#"
+                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">Ver
+                más</a>
+        </div>
+
+        <div
+            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2">
+            <img src="https://placehold.co/600x400" alt="Honda Civic" class="rounded mb-4">
+            <h3 class="text-xl font-semibold mb-2">Honda Civic 2021</h3>
+            <p class="text-gray-300 text-sm mb-4">Conducción deportiva, ideal para los que aman la velocidad.</p>
+            <a href="#"
+                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">Ver
+                más</a>
+        </div>
+    </div>
+</section>
+
+<!-- Sección: ¿Por qué elegirnos? -->
+<section class="py-20 px-6 max-w-7xl mx-auto">
+    <h2 class="text-3xl font-bold text-center mb-10">¿Por qué elegir AutoRentHN?</h2>
+    <div class="grid md:grid-cols-3 gap-8 text-center">
+        <div class="bg-white/10 p-6 rounded-xl shadow-md hover:shadow-cyan-400/30 transition duration-300">
+            <i class="fas fa-car-side text-cyan-400 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold mb-2">Variedad de Vehículos</h3>
+            <p class="text-gray-300 text-sm">Desde compactos hasta SUV, tenemos lo que necesitás.</p>
+        </div>
+        <div class="bg-white/10 p-6 rounded-xl shadow-md hover:shadow-cyan-400/30 transition duration-300">
+            <i class="fas fa-shield-alt text-cyan-400 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold mb-2">Seguridad Garantizada</h3>
+            <p class="text-gray-300 text-sm">Vehículos inspeccionados y soporte 24/7.</p>
+        </div>
+        <div class="bg-white/10 p-6 rounded-xl shadow-md hover:shadow-cyan-400/30 transition duration-300">
+            <i class="fas fa-bolt text-cyan-400 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold mb-2">Reservas Rápidas</h3>
+            <p class="text-gray-300 text-sm">Alquilá o comprá en minutos con nuestra plataforma.</p>
+        </div>
+    </div>
+</section>
 {% endblock %}

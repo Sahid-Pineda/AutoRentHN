@@ -14,9 +14,9 @@ def hash_password(password):
 def authenticate_user(email, password):
     result = execute_query(QUERIES['get_user_by_email'], (email,))
     if result: 
-        id_user, email, password_hash = result[0] 
+        id_user, email, password_hash, rol_id = result[0] 
         if bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8')):
-            return id_user, email
+            return id_user, email, rol_id
     return None
 
 def register_user(data):
@@ -37,7 +37,8 @@ def register_user(data):
                 data['primer_apellido'],
                 data['segundo_apellido'],
                 data['telefono'],
-                direccion_id
+                direccion_id,
+                data['sexo']
             )
         )
 
@@ -58,12 +59,10 @@ def register_user(data):
             )
         )
 
-        tipo_exoneracion_id = int(data['tipo_exoneracion'])
         execute_insert(
             QUERIES['insert_client'],
             (
                 usuario_id,
-                tipo_exoneracion_id
             )
         )
     except (ValueError, pyodbc.Error) as e:

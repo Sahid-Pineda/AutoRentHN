@@ -69,8 +69,7 @@ def execute_insert(query, params=None):
 def execute_insert_returning_id(query, params=None):
     conn = get_db_connection()
     cursor = conn.cursor()
-    try:
-        print(f"Ejecutando consulta: {query} con parámetros: {params}")        
+    try:       
         if params:
             cursor.execute(query + "; SELECT SCOPE_IDENTITY();", params)
         else:

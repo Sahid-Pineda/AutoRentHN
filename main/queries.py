@@ -14,16 +14,16 @@ QUERIES = {
     'obtener_colonia': "SELECT id_Colonia AS id, Nombre AS nombre FROM Colonia WHERE Ciudad_id = ?",
 
     # Consultas relacionadas con Persona
-    "create_person":"INSERT INTO Persona (PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, Telefono, Direccion_id) VALUES (?, ?, ?, ?, ?, ?)",
+    "create_person":"INSERT INTO Persona (PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, Telefono, Direccion_id, Sexo) VALUES (?, ?, ?, ?, ?, ?, ?)",
     
     # Consultas relacionadas con Usuario
     "get_user_name_by_id": "SELECT nombre FROM Usuario WHERE id_Usuario = ?",
-    "get_user_by_email": "SELECT id_Usuario, Correo, Contrasenia FROM Usuario WHERE Correo = ?",
+    "get_user_by_email": "SELECT id_Usuario, Correo, Contrasenia, Rol_id FROM Usuario WHERE Correo = ?",
     "create_user": "INSERT INTO Usuario (Correo, Contrasenia, Persona_id, Rol_id) VALUES (?, ?, ?, ?)",
     "get_rol_by_name":"SELECT id_RolUsuario FROM RolUsuario WHERE Nombre = ?",
 
     # Consultas relacionadas con Cliente
-    "insert_client": "INSERT INTO Cliente (Usuario_id, TipoExoneracion_id) VALUES (?, ?)",
+    "insert_client": "INSERT INTO Cliente (Usuario_id) VALUES (?)",
     "get_all_clients": "SELECT * FROM Cliente",
     "get_client_by_id": "SELECT * FROM Cliente WHERE id_Cliente = ?",
 

@@ -134,3 +134,53 @@ INSERT INTO Permiso (Nombre, Descripcion) VALUES
 ('Crear Contrato', 'Permite crear nuevos contratos'),
 ('Editar Vehículo', 'Permite modificar información de vehículos');
 GO
+
+INSERT INTO Modelo (Marca_id, Nombre) VALUES
+(1, 'Corolla'),
+(1, 'Tacoma'),
+(2, 'Civic'),
+(2, 'Fit'),
+(3,'Sentra'),
+(3,'Frontier'),
+(4,'Focus'),
+(4,'Mustang');
+GO
+
+INSERT INTO ParqueoVehiculo (Lote, Referencia) VALUES
+('Lote A1', 'Cerca de entrada principal'),
+('Lote B2', 'Zona trasera');
+GO
+
+INSERT INTO Proveedor (NombreProveedor, RTN, ContactoNombre, Telefono, Correo, Direccion, TipoProveedor) VALUES
+('Importadora AutoHN', '08011990123458', 'Ana Gómez', '504-9777-1234', 'contacto@autohn.com', 'Tegucigalpa', 'Distribuidor');
+GO
+
+INSERT INTO Vehiculo (Modelo_id, Anio, VIN, Motor, MatriculaPlaca, Disponibilidad, PrecioVenta, PrecioAlquiler, TipoVehiculo_id, Estado, TipoCombustible, UsoVehiculo_id, ParqueoVehiculo_id, Proveedor_id) VALUES
+(1, 2023, '1HGCM82633A123456', '1.8L I4 DOHC 16V VVT-i', 'HND1234', 1, 250000.00, 150.00, 1, 'Nuevo', 'Gasolina', 1, 1, 1);
+GO
+
+--Insert de un Empleado
+INSERT INTO Direccion (Descripcion, Colonia_id) VALUES
+('Calle Principal', 1);
+GO
+SELECT * FROM Direccion;
+
+INSERT INTO Persona (PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, Telefono, Direccion_id, Sexo) VALUES
+('María', 'Luisa', 'Rodríguez', 'López', '504-9888-5678', 2, 'F');
+GO
+
+INSERT INTO Usuario (Correo, Contrasenia, InicioUso, FinUso, Rol_id, Persona_id) VALUES
+('maria.rodriguez@autorent.com', '$2b$12$nzzYw0fr6xOQW5nRmFaIf.ITseX4JZyV0fA7uspb/PlUclIMPYMt.', '2025-07-11', NULL, 3, 2);
+GO
+
+INSERT INTO Empleado (Horario_id, Usuario_id, Estado) VALUES
+(1, 2, 'Activo');
+GO
+
+SELECT * FROM Empleado;
+SELECT * FROM Vehiculo;
+SELECT * FROM Direccion;
+SELECT * FROM Persona;
+SELECT * FROM Usuario;
+SELECT * FROM Cliente;
+SELECT * FROM Proveedor;

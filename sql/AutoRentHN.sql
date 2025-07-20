@@ -122,75 +122,6 @@ CodigoEstablecimiento VARCHAR(12)
 );
 GO
 
---Tablas Usuario y Permisos
-CREATE TABLE Persona (
-id_Persona INTEGER PRIMARY KEY IDENTITY(1,1),
-PrimerNombre VARCHAR(100) NOT NULL,
-SegundoNombre VARCHAR(100),
-PrimerApellido VARCHAR(100) NOT NULL,
-SegundoApellido VARCHAR(100),
-Telefono VARCHAR(20) NOT NULL,
-Direccion_id INTEGER NOT NULL,
-FOREIGN KEY (Direccion_id) REFERENCES Direccion(id_Direccion)
-);
-GO
-
-CREATE TABLE InformacionFiscal (
-id_InformacionFiscal INTEGER PRIMARY KEY IDENTITY(1,1),
-RTN VARCHAR(25) NOT NULL,
-TipoContribuyente VARCHAR(20),
-FechaRegistro DATE DEFAULT GETDATE(),
-Persona_id INTEGER NOT NULL,
-FOREIGN KEY (Persona_id) REFERENCES Persona(id_Persona)
-);
-
-CREATE TABLE Usuario (
-id_Usuario INTEGER PRIMARY KEY IDENTITY(1,1),
-Correo VARCHAR(250) NOT NULL UNIQUE,
-Contrasenia VARCHAR(250) NOT NULL,
-InicioUso DATETIME,
-FinUso DATETIME,
-Rol_id INTEGER NOT NULL,
-Persona_id INTEGER NOT NULL,
-FOREIGN KEY (Persona_id) REFERENCES Persona(id_Persona),
-FOREIGN KEY (Rol_id) REFERENCES RolUsuario(id_RolUsuario)
-);
-GO
-
-CREATE TABLE Permiso (
-id_Permiso INTEGER PRIMARY KEY IDENTITY(1,1),
-Nombre VARCHAR(100) NOT NULL,
-Descripcion TEXT
-);
-GO
-
-CREATE TABLE RolPermiso (
-id_RolPermiso INTEGER PRIMARY KEY IDENTITY(1,1),
-Rol_id INTEGER NOT NULL,
-Permiso_id INTEGER NOT NULL,
-FOREIGN KEY (Rol_id) REFERENCES RolUsuario(id_RolUsuario),
-FOREIGN KEY (Permiso_id) REFERENCES Permiso(id_Permiso)
-);
-GO
-
-CREATE TABLE Empleado (
-id_Empleado INTEGER PRIMARY KEY IDENTITY(1,1),
-Horario_id INTEGER,
-Usuario_id INTEGER NOT NULL,
-Estado VARCHAR(100),
-FOREIGN KEY (Horario_id) REFERENCES HorarioTrabajo(id_HorarioTrabajo),
-FOREIGN KEY (Usuario_id) REFERENCES Usuario(id_Usuario)
-);
-GO
-
-CREATE TABLE Cliente (
-id_Cliente INTEGER PRIMARY KEY IDENTITY(1,1),
-Usuario_id INTEGER NOT NULL,
-TipoExoneracion_id INTEGER,
-FOREIGN KEY (Usuario_id) REFERENCES Usuario(id_Usuario),
-FOREIGN KEY (TipoExoneracion_id) REFERENCES TipoExoneracion(id_TipoExoneracion)
-);
-GO
 
 --Tablas Gestion Vehiculos
 CREATE TABLE Modelo (
@@ -275,6 +206,79 @@ Costo DECIMAL(13,2) NOT NULL,
 Vehiculo_id INTEGER,
 FOREIGN KEY (TipoSeguro_id) REFERENCES TipoSeguro(id_TipoSeguro),
 FOREIGN KEY (Vehiculo_id) REFERENCES Vehiculo(id_Vehiculo)
+);
+GO
+
+--Tablas Usuario y Permisos
+CREATE TABLE Persona (
+id_Persona INTEGER PRIMARY KEY IDENTITY(1,1),
+PrimerNombre VARCHAR(100) NOT NULL,
+SegundoNombre VARCHAR(100),
+PrimerApellido VARCHAR(100) NOT NULL,
+SegundoApellido VARCHAR(100),
+Telefono VARCHAR(20) NOT NULL,
+Direccion_id INTEGER NOT NULL,
+Sexo CHAR(1) NOT NULL,
+FOREIGN KEY (Direccion_id) REFERENCES Direccion(id_Direccion)
+);
+GO
+
+CREATE TABLE InformacionFiscal (
+id_InformacionFiscal INTEGER PRIMARY KEY IDENTITY(1,1),
+RTN VARCHAR(25) NOT NULL,
+TipoContribuyente VARCHAR(20),
+FechaRegistro DATE DEFAULT GETDATE(),
+Persona_id INTEGER NOT NULL,
+FOREIGN KEY (Persona_id) REFERENCES Persona(id_Persona)
+);
+
+CREATE TABLE Usuario (
+id_Usuario INTEGER PRIMARY KEY IDENTITY(1,1),
+Correo VARCHAR(250) NOT NULL UNIQUE,
+Contrasenia VARCHAR(250) NOT NULL,
+InicioUso DATETIME,
+FinUso DATETIME,
+Rol_id INTEGER NOT NULL,
+Persona_id INTEGER NOT NULL,
+FOREIGN KEY (Persona_id) REFERENCES Persona(id_Persona),
+FOREIGN KEY (Rol_id) REFERENCES RolUsuario(id_RolUsuario)
+);
+GO
+
+CREATE TABLE Permiso (
+id_Permiso INTEGER PRIMARY KEY IDENTITY(1,1),
+Nombre VARCHAR(100) NOT NULL,
+Descripcion TEXT
+);
+GO
+
+CREATE TABLE RolPermiso (
+id_RolPermiso INTEGER PRIMARY KEY IDENTITY(1,1),
+Rol_id INTEGER NOT NULL,
+Permiso_id INTEGER NOT NULL,
+FOREIGN KEY (Rol_id) REFERENCES RolUsuario(id_RolUsuario),
+FOREIGN KEY (Permiso_id) REFERENCES Permiso(id_Permiso)
+);
+GO
+
+CREATE TABLE Empleado (
+id_Empleado INTEGER PRIMARY KEY IDENTITY(1,1),
+Horario_id INTEGER,
+Usuario_id INTEGER NOT NULL,
+Estado VARCHAR(100),
+FOREIGN KEY (Horario_id) REFERENCES HorarioTrabajo(id_HorarioTrabajo),
+FOREIGN KEY (Usuario_id) REFERENCES Usuario(id_Usuario)
+);
+GO
+
+CREATE TABLE Cliente (
+id_Cliente INTEGER PRIMARY KEY IDENTITY(1,1),
+Usuario_id INTEGER NOT NULL,
+TipoExoneracion_id INTEGER,
+VehiculoSeleccionado_id INTEGER,
+FOREIGN KEY (VehiculoSeleccionado_id) REFERENCES Vehiculo(id_Vehiculo),
+FOREIGN KEY (Usuario_id) REFERENCES Usuario(id_Usuario),
+FOREIGN KEY (TipoExoneracion_id) REFERENCES TipoExoneracion(id_TipoExoneracion)
 );
 GO
 
