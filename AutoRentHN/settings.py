@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-3zf+$_3tq)5j*f%ylwo$kgpg+2f2+qj6gs+p5(zt7ao-zwe08q
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']
 
 
 # Application definition
@@ -48,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'main.middleware.RolMiddleware',
 ]
 
 ROOT_URLCONF = 'AutoRentHN.urls'

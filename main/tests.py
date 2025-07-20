@@ -24,3 +24,17 @@ finally:
         cursor.close()
     if 'conn' in locals():
         conn.close()
+
+import bcrypt
+
+#Para encriptar contraseñas para guardar manual en la BD
+password = "A123"
+# bcrypt necesita el password en bytes
+password_bytes = password.encode('utf-8')
+
+# Generar salt y luego hashear
+salt = bcrypt.gensalt()
+hashed = bcrypt.hashpw(password_bytes, salt)
+
+print(hashed.decode())  # Esto es lo que se guarda en la DB
+

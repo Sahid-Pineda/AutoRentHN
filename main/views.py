@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .db_utils import execute_query, execute_insert_returning_id
-from .services import hash_password, authenticate_user, register_user, get_ubicaciones
+from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias
 from .utils import login_required
 from django.http import JsonResponse
 from .queries import QUERIES
@@ -9,7 +9,6 @@ import pyodbc
 # Create your views here.
 # El orden de trabajo es: Template -> View -> url -> service -> Query
 
-@login_required
 def home_view(request):
     return render(request, 'home.html')
 
@@ -18,18 +17,39 @@ def login_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = authenticate_user(email, password)
+        
         if user:
-            id_usuario, email = user
+            id_usuario, email, rol_id = user
             request.session['user_id'] = id_usuario
             request.session['user_email'] = email
-            return redirect('home')
+            request.session['rol_id'] = rol_id
+
+            if rol_id == 1:
+                return redirect('admin_view')
+            elif rol_id == 2:
+                return redirect('cliente_view')
+            elif rol_id == 3:
+                return redirect('empleado_view')
         else:
             return render(request, 'login.html', {'error': 'Credenciales inválidas'})
     return render(request, 'login.html')
 
+@login_required
+def admin_view(request):
+    return render(request, 'admin_home.html')
+
+@login_required
+def cliente_view(request):
+    return render(request, 'cliente_home.html')
+
+@login_required
+def empleado_view(request):
+    return render(request, 'empleado_home.html')
+
+@login_required
 def logout_view(request):
     request.session.flush()  # Elimina todos los datos de la sesión
-    return redirect('login')
+    return redirect('home')
 
 def register_view(request):
     # Obtener datos para el formulario de registro
@@ -58,7 +78,7 @@ def register_view(request):
             'ciudad_id': request.POST.get('ciudad_id'),
             'departamento_id': request.POST.get('departamento_id'),
             'pais_id': request.POST.get('pais_id'),
-            'tipo_exoneracion': request.POST.get('tipo_exoneracion'),
+            'sexo': request.POST.get('sexo'),
             'email': request.POST.get('email'),
             'password': request.POST.get('password')
         }
@@ -68,7 +88,7 @@ def register_view(request):
 
     
         # Convertir y validar IDs de los datos
-        for valor in ['colonia_id', 'ciudad_id', 'departamento_id', 'pais_id', 'tipo_exoneracion']:
+        for valor in ['colonia_id', 'ciudad_id', 'departamento_id', 'pais_id']:
             if data[valor]:
                 try:
                     data[valor] = int(data[valor])
@@ -84,31 +104,20 @@ def register_view(request):
         'colonias': colonias,
         'ciudades': ciudades,
         'departamentos': departamentos,
-        'paises': paises,
-        'tipo_exoneracion': tipo_exoneracion
+        'paises': paises
     })
 
-def get_ubicacion(request):
-    try:
-        colonia_id = request.GET.get('colonia_id')
+def obtener_departamento(request):
+    pais_id = request.GET.get('pais_id')
+    datos = traer_departamentos(pais_id)
+    return JsonResponse({'departamentos': datos})
 
-        datos = get_ubicaciones(colonia_id)
+def obtener_ciudad(request):
+    departamento_id = request.GET.get('departamento_id')
+    datos = traer_ciudades(departamento_id)
+    return JsonResponse({'ciudades': datos})
 
-        return JsonResponse ({
-            'ciudad': {
-                'id': datos['ciudad_id'],
-                'nombre': datos['ciudad_nombre']
-            },
-            'departamento': {
-                'id': datos['departamento_id'],
-                'nombre': datos['departamento_nombre']
-            },
-            'pais': {
-                'id': datos['pais_id'],
-                'nombre': datos['pais_nombre']
-            }
-        })
-    except Exception as e :
-        import traceback
-        print("🔥 ERROR EN VISTA obtener_ubicacion():")
-        traceback.print_exc()
+def obtener_colonia(request):
+    ciudad_id = request.GET.get('ciudad_id')
+    datos = traer_colonias(ciudad_id)
+    return JsonResponse({'colonias': datos})
