@@ -35,7 +35,11 @@ def execute_query(query, params=None):
 def consultar_todas_filas_dict(query, params=None):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(query, params)
+
+    if params:
+        cursor.execute(query, params)
+    else:
+        cursor.execute(query)
 
     # Obtener nombres de columnas
     columnas = [columna[0] for columna in cursor.description]
@@ -48,6 +52,23 @@ def consultar_todas_filas_dict(query, params=None):
     cursor.close()
     conn.close()
     return resultados
+
+def consultar_una_fila_dict(query, params=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, params)
+
+    columnas = [columna[0].lower() for columna in cursor.description]
+    fila = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if fila:
+        return dict(zip(columnas, fila))
+    else:
+        return None
+
 
 def execute_insert(query, params=None):
     conn = get_db_connection()

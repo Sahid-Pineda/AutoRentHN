@@ -31,12 +31,67 @@ QUERIES = {
     'get_tipo_exoneracion_by_id': "SELECT TipoExoneracion_id FROM TipoExoneracion WHERE TipoExoneracion_id = ?",
     'get_all_tipo_exoneracion': "SELECT * FROM TipoExoneracion",
 
-    #Consulta para Vehiculo
+    #Consultas para Vehiculos
     'get_vehicle_by_marca': """
     SELECT
     ma.Marca_id AS id_Marca, ma.Nombre AS Nombre
     FROM Modelo mo
     JOIN Marca ma ON mo.Marca_id = ma.id_Marca
-    WHERE mo.id_Marca
-    """
+    WHERE mo.id_Marca = ?
+    """,
+
+    #Agregar que devuelve el imagen_url del Vehiculo en BD
+    "get_all_vehicles": """
+    SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS anio, 
+           tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion, v.PrecioVenta,
+           v.PrecioAlquiler, v.Estado
+    FROM Vehiculo v
+    JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+    JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+	WHERE Disponibilidad = 1
+    """,
+
+    #Agregar que devuelve el imagen_url del Vehiculo en BD
+    "get_vehicle_by_uso_Alquiler": """
+    SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS año, 
+           tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
+           v.PrecioAlquiler, v.Estado
+    FROM Vehiculo v
+    JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+    JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+	WHERE uv.descripcion = 'Alquiler' AND Disponibilidad = 1
+    """,
+
+    #Agregar que devuelve el imagen_url del Vehiculo en BD
+    "get_vehicle_by_uso_Venta": """
+    SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS año,
+           tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
+           v.PrecioVenta, v.Estado
+    FROM Vehiculo v
+    JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+    JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+	WHERE uv.descripcion = 'Venta' AND Disponibilidad = 1
+    """,
+
+    #Agregar que devuelve el imagen_url del Vehiculo en BD
+    "get_vehicle_by_id": """
+    SELECT  v.id_Vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
+		v.VIN AS vin, v.Motor AS motor, v.MatriculaPlaca AS placa, 
+		tv.nombreTipo AS tipo_nombre, tv.descripcion AS tipo_descripcion, 
+		uv.descripcion AS uso_descripcion, v.PrecioVenta AS precio_de_venta, 
+		v.PrecioAlquiler AS precio_de_alquiler, v.Estado AS estado, 
+		v.TipoCombustible AS tipo_de_combustible
+    FROM Vehiculo v
+    JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+    JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+	WHERE v.id_Vehiculo = ?
+    """,
 }

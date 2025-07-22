@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/8f6e594d08.js" crossorigin="anonymous"></script>
     {% load static %}
+    {% load tz %}
     <script>
         tailwind.config = {
             theme: {
@@ -62,11 +63,14 @@
         </nav>
     </header>
 
-    <!-- Espacio para evitar que se solape el contenido -->
-    <div class="pt-20"></div>
+    <!-- Fondo animado de partículas -->
+    <div id="tsparticles" class="fixed top-0 left-0 w-full h-full -z-10"></div>
 
     <!-- Bloques de contenido de las páginas hijas -->
-    {% block content %}{% endblock %}
+    <main class="pt-24 animate-fadeIn">
+        {% block content %}{% endblock %}
+    </main>
+
     {% block extra_js %}
     <script src="{% static 'js/cascada_colonia.js' %}"></script>
     {% endblock %}
@@ -87,6 +91,36 @@
             });
         });
     </script>
+
+    <footer class="bg-zinc-950/90 text-white py-8 mt-12 border-t border-zinc-800">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+            <!-- Información de la empresa -->
+            <div>
+            <h4 class="text-cyan-500 text-lg font-semibold mb-2">AutoRentHN</h4>
+            <p>Tu mejor opción para alquiler y compra de vehículos en Honduras. Ofrecemos autos confiables, precios accesibles y un excelente servicio al cliente.</p>
+            </div>
+
+            <!-- Contacto -->
+            <div>
+            <h4 class="text-cyan-500 text-lg font-semibold mb-2">Contacto</h4>
+            <p><i class="fa-solid fa-phone mr-2 text-cyan-400"></i>+504 2234-5678</p>
+            <p><i class="fa-solid fa-envelope mr-2 text-cyan-400"></i>soporte@autorenthn.com</p>
+            <p><i class="fa-solid fa-location-dot mr-2 text-cyan-400"></i>Tegucigalpa, Honduras</p>
+            </div>
+
+            <!-- Horarios -->
+            <div>
+            <h4 class="text-cyan-500 text-lg font-semibold mb-2">Horarios</h4>
+            <p>Lunes a Viernes: 8:00 AM – 6:00 PM</p>
+            <p>Sábados: 9:00 AM – 2:00 PM</p>
+            <p>Domingos y feriados: Cerrado</p>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center text-xs text-gray-500">
+            &copy; {{ now|date:"Y" }} AutoRentHN. Todos los derechos reservados.
+        </div>
+    </footer>
 
 </body>
 

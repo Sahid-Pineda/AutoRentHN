@@ -1,7 +1,6 @@
 import bcrypt
 import pyodbc
-import hashlib
-from .db_utils import execute_query, execute_insert, execute_insert_returning_id, consultar_todas_filas_dict
+from .db_utils import consultar_una_fila_dict, execute_query, execute_insert, execute_insert_returning_id, consultar_todas_filas_dict
 from .queries import QUERIES
 
 # Modulo para manejar la logica de negocio como la autenticacion y creacion de usuarios.
@@ -77,3 +76,15 @@ def traer_ciudades(departamento_id):
 
 def traer_colonias(ciudad_id):
     return consultar_todas_filas_dict(QUERIES['obtener_colonia'], (ciudad_id,))
+
+def traer_vehiculos():
+    return consultar_todas_filas_dict(QUERIES['get_all_vehicles'])
+
+def traer_vehiculos_alquiler():
+    return consultar_todas_filas_dict(QUERIES['get_vehicle_by_uso_Alquiler'])
+
+def traer_vehiculos_venta():
+    return consultar_todas_filas_dict(QUERIES['get_vehicle_by_uso_Venta'])
+
+def traer_vehiculo(vehiculo_id):
+    return consultar_una_fila_dict(QUERIES['get_vehicle_by_id'], (vehiculo_id,))

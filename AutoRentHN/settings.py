@@ -83,8 +83,7 @@ DATABASES = {
         'PASSWORD': 'MyStrongP@ssw0rd!',  # Remplazar por tu contraseña real
         'HOST': 'localhost',
         'PORT': '1433',
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server',
+        'OPTIONS': {          
             'extra_params': 'MARS_Connection=Yes', #Ejecutar varios SELECT, INSERT, UPDATE, etc., sin cerrar el anterior.
         },
     }
