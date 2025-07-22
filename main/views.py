@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .db_utils import execute_query, execute_insert_returning_id
-from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias
+from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias, traer_vehiculo, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta
 from .utils import login_required
 from django.http import JsonResponse
 from .queries import QUERIES
@@ -10,7 +10,8 @@ import pyodbc
 # El orden de trabajo es: Template -> View -> url -> service -> Query
 
 def home_view(request):
-    return render(request, 'home.html')
+    vehiculos = traer_vehiculos()
+    return render(request, 'home.html', {'vehiculos': vehiculos})
 
 def login_view(request):
     if request.method == 'POST':
@@ -41,6 +42,21 @@ def admin_view(request):
 @login_required
 def cliente_view(request):
     return render(request, 'cliente_home.html')
+
+@login_required
+def cliente_venta_view(request):
+    vehiculos = traer_vehiculos_venta()
+    return render(request, 'cliente_venta.html', {'vehiculos': vehiculos})
+
+@login_required
+def cliente_alquiler_view(request):
+    vehiculos = traer_vehiculos_alquiler()
+    return render(request, 'cliente_alquiler.html', {'vehiculos': vehiculos})
+
+@login_required
+def auto_view(request, id_vehiculo):
+    vehiculo = traer_vehiculo(id_vehiculo)
+    return render(request, 'visualizar_auto.html', {'vehiculo': vehiculo})
 
 @login_required
 def empleado_view(request):

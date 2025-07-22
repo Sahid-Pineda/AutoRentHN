@@ -3,6 +3,21 @@
 {% block content %}
 <div id="tsparticles" class="absolute top-0 left-0 w-full h-full -z-10"></div>
 {% load static %}
-<h1 class="bg-ZINC-950">PAGINA DE CLIENTE</h1>
+<div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-2xl p-20 rounded-xl shadow-lg bg-zinc-950/70 text-white">
+
+        <h2 class="text-3xl font-bold text-center mb-10">Seleccione la utilidad de su auto</h2>
+
+        <div class="inline-flex rounded-md shadow-md">
+            <a href="{% url 'cliente_venta_view' %}" class="px-16 py-2 text-lg text-center text-blue-700 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                Autos en Venta
+            </a>
+            <a href="{% url 'cliente_alquiler_view' %}" class="px-16 py-2 text-lg text-center text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                Autos en Alquiler
+            </a>
+        </div>
+
+    </div>
+</div>
 
 {% endblock %}

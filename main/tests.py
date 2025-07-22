@@ -36,5 +36,13 @@ password_bytes = password.encode('utf-8')
 salt = bcrypt.gensalt()
 hashed = bcrypt.hashpw(password_bytes, salt)
 
-print(hashed.decode())  # Esto es lo que se guarda en la DB
+print("\n" + hashed.decode())  # Esto es lo que se guarda en la DB
 
+#Para comparar contraseñas
+hashed = b"$2b$12$tsTNYcVEuzoOCGrhw7iT..kKncmupNbdGYCOcK07QvjCrasqIHg3m"
+password = b"MiContraP@ssw0rd!"
+
+if bcrypt.checkpw(password, hashed):
+    print("\n" + "La contraseña es correcta")
+else:
+    print("\n" + "Contraseña incorrecta")

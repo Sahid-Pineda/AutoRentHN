@@ -33,47 +33,32 @@
 <section class="py-16 px-6 bg-sky-950 bg-opacity-60 backdrop-blur rounded-xl max-w-7xl mx-auto">
     <h2 class="text-3xl font-bold text-center mb-10">Explora nuestros vehículos</h2>
     <div class="grid md:grid-cols-3 gap-8">
-        {% for car in cars %}
+        {% for vehiculo in vehiculos %}
         <div
-            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2">
-            <img src="{{ car.image_url }}" alt="{{ car.name }}" class="rounded mb-4">
-            <h3 class="text-xl font-semibold mb-2">{{ car.name }}</h3>
-            <p class="text-gray-300 text-sm mb-4">{{ car.description }}</p>
-            <a href="#"
-                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">Ver
-                más</a>
+            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2"
+            id="Id_Vehiculo" name="Id_Vehiculo">
+
+            {% if vehiculo.imagen_url %}
+            <div class="flex justify-center mb-6">
+                <img src="{{ vehiculo.imagen_url }}" alt="Imagen del vehículo"
+                    class="rounded-xl shadow-lg max-w-md w-full object-cover">
+            </div>
+            {% else %}
+                <p class="text-center text-sm text-gray-400 mb-6">Este vehículo no tiene imagen disponible.</p>
+            {% endif %}
+
+            <h3 class="text-xl font-semibold mb-2">
+            {{ vehiculo.marca_nombre }} - {{ vehiculo.modelo_nombre }} {{ vehiculo.año }}
+            </h3>
+
+            <p class="text-gray-300 text-sm mb-4">{{ vehiculo.tipo_descripcion }}</p>
+            
+            <a href="{% url 'auto' vehiculo.id_vehiculo %}"
+                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">
+                Ver más
+            </a>
         </div>
         {% endfor %}
-
-        <div
-            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2">
-            <img src="https://placehold.co/600x400" alt="Toyota Corolla" class="rounded mb-4">
-            <h3 class="text-xl font-semibold mb-2">Toyota Corolla 2022</h3>
-            <p class="text-gray-300 text-sm mb-4">Eficiencia, comodidad y estilo para moverte por la ciudad.</p>
-            <a href="#"
-                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">Ver
-                más</a>
-        </div>
-
-        <div
-            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2">
-            <img src="https://placehold.co/600x400" alt="Hyundai Tucson" class="rounded mb-4">
-            <h3 class="text-xl font-semibold mb-2">Hyundai Tucson 2023</h3>
-            <p class="text-gray-300 text-sm mb-4">Perfecto para viajes largos con tu familia o amigos.</p>
-            <a href="#"
-                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">Ver
-                más</a>
-        </div>
-
-        <div
-            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2">
-            <img src="https://placehold.co/600x400" alt="Honda Civic" class="rounded mb-4">
-            <h3 class="text-xl font-semibold mb-2">Honda Civic 2021</h3>
-            <p class="text-gray-300 text-sm mb-4">Conducción deportiva, ideal para los que aman la velocidad.</p>
-            <a href="#"
-                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">Ver
-                más</a>
-        </div>
     </div>
 </section>
 
