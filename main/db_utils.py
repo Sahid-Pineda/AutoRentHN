@@ -24,7 +24,7 @@ def execute_query(query, params=None):
         if query.strip().upper().startswith("SELECT"):
             return cursor.fetchall()
         conn.commit()
-        return None
+        return cursor.execute("SELECT @@IDENTITY").fetchone()[0]
     except pyodbc.Error as e:
         print(f"Error en la consulta: {e}")
         raise

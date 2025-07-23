@@ -7,8 +7,7 @@
     <h2 class="text-3xl font-bold text-center mb-10">Descubre vehículos en alquiler</h2>
     <div class="grid md:grid-cols-3 gap-8">
         {% for vehiculo in vehiculos %}
-        <div
-            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2"
+        <div class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2"
             id="Id_Vehiculo" name="Id_Vehiculo">
 
             {% if vehiculo.imagen_url %}
@@ -17,15 +16,15 @@
                     class="rounded-xl shadow-lg max-w-md w-full object-cover">
             </div>
             {% else %}
-                <p class="text-center text-sm text-gray-400 mb-6">Este vehículo no tiene imagen disponible.</p>
+            <p class="text-center text-sm text-gray-400 mb-6">Este vehículo no tiene imagen disponible.</p>
             {% endif %}
 
             <h3 class="text-xl font-semibold mb-2">
-            {{ vehiculo.marca_nombre }} - {{ vehiculo.modelo_nombre }} {{ vehiculo.año }}
+                {{ vehiculo.marca_nombre }} - {{ vehiculo.modelo_nombre }} {{ vehiculo.año }}
             </h3>
 
             <p class="text-gray-300 text-sm mb-4">{{ vehiculo.tipo_descripcion }}</p>
-            
+
             <a href="{% url 'auto' vehiculo.id_vehiculo %}"
                 class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">
                 Ver más

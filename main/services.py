@@ -68,6 +68,12 @@ def register_user(data):
         print(f"Error al registrar usuario: {e}")
         raise
 
+def traer_cliente(correo):
+    return execute_query(QUERIES['get_cliente_by_correo'], [correo])
+
+def traer_empleado(empleado_id):
+    return consultar_una_fila_dict(QUERIES['get_empleado_by_id'], (empleado_id,))
+
 def traer_departamentos(pais_id):
     return consultar_todas_filas_dict(QUERIES['obtener_departamento'], (pais_id,))
 
@@ -78,7 +84,7 @@ def traer_colonias(ciudad_id):
     return consultar_todas_filas_dict(QUERIES['obtener_colonia'], (ciudad_id,))
 
 def traer_vehiculos():
-    return consultar_todas_filas_dict(QUERIES['get_all_vehicles'])
+    return consultar_todas_filas_dict(QUERIES['get_vehiculos_disponibles_venta'])
 
 def traer_vehiculos_alquiler():
     return consultar_todas_filas_dict(QUERIES['get_vehicle_by_uso_Alquiler'])

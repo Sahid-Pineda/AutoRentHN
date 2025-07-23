@@ -156,8 +156,17 @@ INSERT INTO Proveedor (NombreProveedor, RTN, ContactoNombre, Telefono, Correo, D
 GO
 
 INSERT INTO Vehiculo (Modelo_id, Anio, VIN, Motor, MatriculaPlaca, Disponibilidad, PrecioVenta, PrecioAlquiler, TipoVehiculo_id, Estado, TipoCombustible, UsoVehiculo_id, ParqueoVehiculo_id, Proveedor_id) VALUES
-(1, 2023, '1HGCM82633A123456', '1.8L I4 DOHC 16V VVT-i', 'HND1234', 1, 250000.00, 150.00, 1, 'Nuevo', 'Gasolina', 1, 1, 1);
+(1, 2023, '1HGCM82633A123456', '1.8L I4 DOHC 16V VVT-i', 'HND1234', 1, 250000.00, 150.00, 1, 'Nuevo', 'Gasolina', 1, 1, 1),
+(3, 2022, '2HGFC2F59KH512345', '2.0L I4 DOHC 16V i-VTEC', 'HND5678', 1, 230000.00, 180.00, 1, 'Nuevo', 'Gasolina', 2, 2, 1);
 GO
+
+SELECT * FROM Marca;
+SELECT * FROM Modelo;
+SELECT * FROM Vehiculo;
+SELECT * FROM UsoVehiculo;
+SELECT * FROM TipoVehiculo;
+SELECT * FROM ParqueoVehiculo;
+SELECT * FROM Proveedor;
 
 --Insert de un Empleado
 INSERT INTO Direccion (Descripcion, Colonia_id) VALUES
