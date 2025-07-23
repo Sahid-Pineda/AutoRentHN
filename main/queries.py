@@ -25,20 +25,81 @@ QUERIES = {
     # Consultas relacionadas con Cliente
     "insert_client": "INSERT INTO Cliente (Usuario_id) VALUES (?)",
     "get_all_clients": "SELECT * FROM Cliente",
-    "get_client_by_id": "SELECT * FROM Cliente WHERE id_Cliente = ?",
+    "get_cliente_by_id": """
+    SELECT 
+    p.PrimerNombre AS Nombre, 
+    p.PrimerApellido AS Apellido,
+    c.id_Cliente AS id_Cliente
+    FROM Cliente c
+    INNER JOIN Usuario u ON c.Usuario_id = u.id_Usuario
+    INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+    WHERE u.id_Usuario = ?;
+    """,
+    "get_cliente_by_correo": """
+    SELECT 
+    c.id_Cliente,
+    p.PrimerNombre,
+    p.SegundoNombre,
+    p.PrimerApellido,
+    p.SegundoApellido,
+    u.Correo,
+    p.Telefono,
+    p.Direccion_id
+    FROM Cliente c
+    INNER JOIN Usuario u ON c.Usuario_id = u.id_Usuario
+    INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+    WHERE u.Correo LIKE ?
+    """,
 
     "insert_tipo_exoneracion": "INSERT INTO TipoExoneracion (Descripcion) VALUES (?)",
     'get_tipo_exoneracion_by_id': "SELECT TipoExoneracion_id FROM TipoExoneracion WHERE TipoExoneracion_id = ?",
     'get_all_tipo_exoneracion': "SELECT * FROM TipoExoneracion",
 
+    # Consultas relacionadas con Empleado
+    "get_empleado_by_id": """
+   SELECT 
+    p.PrimerNombre AS Nombre, 
+    p.PrimerApellido AS Apellido,
+    e.id_Empleado AS id_Empleado
+    FROM Empleado e
+    INNER JOIN Usuario u ON e.Usuario_id = u.id_Usuario
+    INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+    WHERE u.id_Usuario = ?;
+    """,
+ 
+    # Consultar para Contrato
+    'insert_contrato': """
+        INSERT INTO Contrato (Vendedor_id, Cliente_id, Vehiculo_id, FechaContrato, TerminosCondiciones, GarantiaRequerida, RecargoIncumplimiento, TipoContrato, EstadoContrato, FirmaCliente)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    """,
+    'insert_contrato_venta': """
+        INSERT INTO ContratoVenta (id_Contrato, FechaVenta, Monto)
+        VALUES (?, ?, ?);
+    """,
+    
     #Consultas para Vehiculos
     'get_vehicle_by_marca': """
     SELECT
-    ma.Marca_id AS id_Marca, ma.Nombre AS Nombre
+        ma.Marca_id AS id_Marca, ma.Nombre AS Nombre
     FROM Modelo mo
-    JOIN Marca ma ON mo.Marca_id = ma.id_Marca
+    INNER JOIN Marca ma ON mo.Marca_id = ma.id_Marca
     WHERE mo.id_Marca = ?
     """,
+    'get_vehiculos_disponibles_venta': """
+    SELECT 
+    v.id_Vehiculo AS id_vehiculo, 
+    v.Modelo_id AS modelo_id, 
+    v.Anio AS anio, 
+    v.PrecioVenta AS precio_venta, 
+    v.MatriculaPlaca AS matricula_placa,
+    m.Nombre AS marca_nombre,
+    mo.Nombre AS modelo_nombre
+    FROM Vehiculo v
+    INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+    INNER JOIN Modelo mo ON v.Modelo_id = mo.id_Modelo
+    INNER JOIN Marca m ON mo.Marca_id = m.id_Marca
+    WHERE uv.id_UsoVehiculo = 2; """,
+
 
     #Agregar que devuelve el imagen_url del Vehiculo en BD
     "get_all_vehicles": """
@@ -46,10 +107,10 @@ QUERIES = {
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion, v.PrecioVenta,
            v.PrecioAlquiler, v.Estado
     FROM Vehiculo v
-    JOIN Modelo m ON v.Modelo_id = m.id_Modelo
-    JOIN Marca ma ON m.Marca_id = ma.id_Marca
-    JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
-    JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+    INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+    INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
 	WHERE Disponibilidad = 1
     """,
 
@@ -59,10 +120,10 @@ QUERIES = {
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
            v.PrecioAlquiler, v.Estado
     FROM Vehiculo v
-    JOIN Modelo m ON v.Modelo_id = m.id_Modelo
-    JOIN Marca ma ON m.Marca_id = ma.id_Marca
-    JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
-    JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+    INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+    INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
 	WHERE uv.descripcion = 'Alquiler' AND Disponibilidad = 1
     """,
 
@@ -72,10 +133,10 @@ QUERIES = {
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
            v.PrecioVenta, v.Estado
     FROM Vehiculo v
-    JOIN Modelo m ON v.Modelo_id = m.id_Modelo
-    JOIN Marca ma ON m.Marca_id = ma.id_Marca
-    JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
-    JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+    INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+    INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
 	WHERE uv.descripcion = 'Venta' AND Disponibilidad = 1
     """,
 
@@ -88,10 +149,10 @@ QUERIES = {
 		v.PrecioAlquiler AS precio_de_alquiler, v.Estado AS estado, 
 		v.TipoCombustible AS tipo_de_combustible
     FROM Vehiculo v
-    JOIN Modelo m ON v.Modelo_id = m.id_Modelo
-    JOIN Marca ma ON m.Marca_id = ma.id_Marca
-    JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
-    JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+    INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+    INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
 	WHERE v.id_Vehiculo = ?
     """,
 }

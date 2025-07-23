@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect
-from .db_utils import execute_query, execute_insert_returning_id
+from .db_utils import execute_query, execute_insert_returning_id, execute_insert
 from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias, traer_vehiculo, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta
+from .services import traer_cliente, traer_vehiculos, traer_empleado
 from .utils import login_required
 from django.http import JsonResponse
 from .queries import QUERIES
 import pyodbc
+import datetime
+from decimal import Decimal
 
 # Create your views here.
 # El orden de trabajo es: Template -> View -> url -> service -> Query
@@ -24,8 +27,8 @@ def login_view(request):
             request.session['user_id'] = id_usuario
             request.session['user_email'] = email
             request.session['rol_id'] = rol_id
-
             if rol_id == 1:
+
                 return redirect('admin_view')
             elif rol_id == 2:
                 return redirect('cliente_view')
@@ -97,11 +100,7 @@ def register_view(request):
             'sexo': request.POST.get('sexo'),
             'email': request.POST.get('email'),
             'password': request.POST.get('password')
-        }
-
-        if not data['colonia_id']:
-            return render(request, 'register.html', {'error': 'Debes seleccionar una colonia.'})
-
+        }        
     
         # Convertir y validar IDs de los datos
         for valor in ['colonia_id', 'ciudad_id', 'departamento_id', 'pais_id']:
@@ -137,3 +136,91 @@ def obtener_colonia(request):
     ciudad_id = request.GET.get('ciudad_id')
     datos = traer_colonias(ciudad_id)
     return JsonResponse({'colonias': datos})
+
+def buscar_cliente(request):
+    correo = request.GET.get('correo', '')
+    if not correo:
+        return JsonResponse({'clientes': []})
+    
+    clientes = execute_query(QUERIES['get_cliente_by_correo'], (f"%{correo}%",))
+    clientes_data = [
+        {
+            'id_cliente': c[0],
+            'nombre': f"{c[1]} {c[3]}",  # Primer nombre y primer apellido
+            'correo': c[5]
+        } for c in clientes
+    ]
+    return JsonResponse({'clientes': clientes_data})
+
+
+#Gestion Contratos
+@login_required
+def contrato_venta_view(request):
+    id_usuario = request.session.get('user_id')
+    empleado = traer_empleado(id_usuario)
+    cliente = None
+    vehiculos = traer_vehiculos()
+
+    if request.method == 'POST':
+        data = {
+            'empleado_id': empleado['id_empleado'],
+            'cliente_id': request.POST.get('cliente_id'),
+            'vehiculo_id': request.POST.get('vehiculo_id'),
+            'fecha_contrato': datetime.datetime.now().strftime('%Y-%m-%d'),
+            'terminos': request.POST.get('terminos', ''),
+            'garantia': request.POST.get('garantia',),
+            'recargo': request.POST.get('recargo', '0'),
+            'tipo_contrato': 'Venta',
+            'estado': 'Pendiente',
+            'firma_cliente': request.POST.get('firma_cliente', ''),
+            'monto': request.POST.get('monto', '0')
+        }
+
+        # Convertir y validar enteros
+        for valor in ['cliente_id', 'vehiculo_id', 'empleado_id']:
+            if data[valor]:
+                try:
+                    data[valor] = int(data[valor])
+                except ValueError:
+                    return render(request, 'contrato_venta.html', {
+                        'vehiculos': vehiculos,
+                        'error': f'ID inválido para {valor}'
+                    })
+
+        try:
+            data['monto'] = Decimal(data['monto'])
+            data['recargo'] = Decimal(data['recargo'])
+        except Exception as e:
+            return render(request, 'contrato_venta.html', {
+                'vehiculos': vehiculos,
+                'error': 'Monto, garantía o recargo inválido.'
+            })
+
+        contrato_id = execute_insert_returning_id(QUERIES['insert_contrato'], (
+            data['empleado_id'],  
+            data['cliente_id'],   
+            data['vehiculo_id'],  
+            data['fecha_contrato'],
+            data['terminos'],         
+            data['garantia'],         
+            data['recargo'],          
+            data['tipo_contrato'],    
+            data['estado'],           
+            data['firma_cliente']     
+        ))
+
+        execute_insert(QUERIES['insert_contrato_venta'], (
+            contrato_id, data['fecha_contrato'], data['monto']
+        ))
+
+        return redirect('contrato_venta_view')
+
+    return render(request, 'contrato_venta.html', {
+        'vehiculos': vehiculos,
+        'cliente': cliente,
+        'empleado': empleado
+    })
+
+
+def contrato_alquiler_view(request):
+    return render(request, 'contrato_alquiler.html')

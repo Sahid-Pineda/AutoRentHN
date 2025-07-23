@@ -1,0 +1,201 @@
+{% extends 'bg_vistas.html' %}
+
+{% block content %}
+{% load static %}
+<div id="particles-js" class="fixed inset-0 -z-10"></div>
+
+<div class="min-h-screen py-20">
+    <div class="max-w-4xl mx-auto bg-slate-200/80 shadow-lg rounded-lg overflow-hidden">
+        <!-- Encabezado del contrato -->
+        <div class="bg-sky-800 text-white px-8 py-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold">CONTRATO DE VENTA VEHICULAR</h1>
+                    <p class="text-blue-200">N° <span id="numero_contrato">[AUTOGENERADO]</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-blue-200">Fecha: <span id="fecha_actual">{{ fecha_actual|date:"d/m/Y" }}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-grow">
+            <div class="space-y-6 px-8">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">1. DATOS DEL EMPLEADO</h2>
+                </div>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div>
+                        <label for="cliente_busqueda" class="block text-sm font-medium text-gray-700 mb-1">ID
+                            Empleado</label>
+                        <div class="mt-1 p-2 bg-zinc-900/80 text-zinc-200 rounded-md">
+                            {{ empleado.id_empleado|default:"N/A" }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-zinc-700">Nombre</label>
+                        <div class="mt-1 p-2 bg-zinc-900/80 text-zinc-200 rounded-md">
+                            {{ empleado.nombre }} {{ empleado.apellido }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cuerpo del contrato -->
+        <div class="px-8 py-6">
+            <!-- Sección de búsqueda de cliente -->
+            <div class="mb-8 border-b pb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">2. DATOS DEL CLIENTE</h2>
+
+                <div class="mb-4">
+                    <label for="cliente_id" class="block text-sm font-medium text-gray-700 mb-1">ID del cliente
+                        (ingreso manual por ahora)</label>
+                    <input type="number" id="cliente_id" name="cliente_id"
+                        class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Ej. 12">
+                </div>
+
+                <div id="cliente_info" class="mt-4 p-4 bg-gray-50 rounded border border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Nombre completo:</p>
+                            <p id="cliente_nombre" class="font-medium text-gray-800">—</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Identificación:</p>
+                            <p id="cliente_identificacion" class="font-medium text-gray-800">—</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Correo electrónico:</p>
+                            <p id="cliente_correo" class="font-medium text-gray-800">—</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Teléfono:</p>
+                            <p id="cliente_telefono" class="font-medium text-gray-800">—</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario del contrato -->
+            <form method="post" action="{% url 'contrato_venta_view' %}" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Sección de vehículo -->
+                <div class="mb-8 border-b pb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">3. DATOS DEL VEHÍCULO</h2>
+                    {% for vehiculo in vehiculos %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="vehiculo_id"
+                                class="block text-sm font-medium text-gray-700 mb-1">Vehículo*</label>
+                            <select id="vehiculo_id" name="vehiculo_id" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Seleccione un vehículo</option>
+                                <option value="{{ vehiculo.id_vehiculo }}">{{ vehiculo.marca_nombre }} -
+                                    {{ vehiculo.modelo_nombre }} - {{ vehiculo.anio }} - {{ vehiculo.matricula_placa }}
+                                </option>
+                            </select>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio
+                                    Venta</label>
+                                <div id="precio_venta" class="mt-1 p-2 bg-zinc-900/80 text-zinc-200 rounded-md">
+                                    {{ vehiculo.precio_venta}}
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Sección de términos y condiciones -->
+                <div class="mb-8 border-b pb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">3. TÉRMINOS DEL CONTRATO</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="fecha_contrato" class="block text-sm font-medium text-gray-700 mb-1">Fecha del
+                                contrato*</label>
+                            <input type="date" id="fecha_contrato" name="fecha_contrato" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="terminos" class="block text-sm font-medium text-gray-700 mb-1">Términos y
+                                condiciones*</label>
+                            <textarea id="terminos" name="terminos" rows="6" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">En virtud del presente contrato, las partes acuerdan que...
+
+                1. El vendedor transfiere al comprador la propiedad del vehículo descrito.
+                2. El precio acordado es de $[monto] a pagarse de la siguiente forma...
+                3. El vehículo se entrega en el estado actual sin garantías implícitas...</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección financiera -->
+                <div class="mb-8 border-b pb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">4. DETALLES FINANCIEROS</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                        <div>
+                            <label for="monto" class="block text-sm font-medium text-gray-700 mb-1">Monto total*</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2">L. </span>
+                                <input type="number" id="monto" name="monto" step="0.01" required
+                                    class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="terminos" class="block text-sm font-medium text-gray-700 mb-1">Términos y
+                                condiciones*</label>
+                            <textarea id="terminos" name="terminos" rows="6" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">En virtud del presente contrato, las partes acuerdan que...</textarea>
+                        </div>
+                        <div>
+                            <label for="recargo" class="block text-sm font-medium text-gray-700 mb-1">Recargo
+                                Incumplimientos</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2">L.</span>
+                                <input type="number" id="recargo" name="recargo" min="0" value="0" step="0.01"
+                                    class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de firmas -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">5. FIRMAS</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-6">
+                        <div class="border-t-2 border-gray-300 pt-4">
+                            <p class="text-sm font-medium text-gray-700 mb-6">VENDEDOR</p>
+                            <p class="font-medium">{{ request.user.get_full_name }}</p>
+                            <p class="text-sm text-gray-600">AutoRentHN</p>
+                            <input type="hidden" name="empleado_id" value="{{ request.user.id }}">
+                        </div>
+                        <div class="border-t-2 border-gray-300 pt-4">
+                            <label for="firma_cliente"
+                                class="block text-sm font-medium text-gray-700 mb-2">COMPRADOR</label>
+                            <input type="text" id="firma_cliente" name="firma_cliente"
+                                placeholder="Nombre completo del cliente" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <p id="nombre_cliente_firma" class="text-sm text-gray-600 mt-2 hidden"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex justify-end space-x-4">
+                    <button type="submit"
+                        class="px-6 py-2 bg-cyan-600 rounded-md text-white text-xl hover:bg-green-800 transition-all duration-300">
+                        Guardar Contrato
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
