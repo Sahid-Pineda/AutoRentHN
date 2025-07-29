@@ -1,6 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'vista_principal/base.html' %}
 
 {% block content %}
+{% load static %}
 <div id="tsparticles" class="absolute top-0 left-0 w-full h-full -z-10"></div>
 
 <div class="flex flex-col items-center justify-center min-h-screen text-center px-4">
@@ -30,37 +31,43 @@
 </div>
 
 <!-- Sección: Vehículos -->
-<section class="py-16 px-6 bg-sky-950 bg-opacity-60 backdrop-blur rounded-xl max-w-7xl mx-auto">
-    <h2 class="text-3xl font-bold text-center mb-10">Explora nuestros vehículos</h2>
-    <div class="grid md:grid-cols-3 gap-8">
-        {% for vehiculo in vehiculos %}
-        <div
-            class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2"
-            id="Id_Vehiculo" name="Id_Vehiculo">
+<section class="py-16 px-6 bg-sky-950 bg-opacity-60 backdrop-blur rounded-xl max-w-7xl mx-auto overflow-hidden">
+    <h2 class="text-3xl font-bold text-center mb-10 text-white">Vehículos destacados</h2>
 
-            {% if vehiculo.imagen_url %}
-            <div class="flex justify-center mb-6">
-                <img src="{{ vehiculo.imagen_url }}" alt="Imagen del vehículo"
-                    class="rounded-xl shadow-lg max-w-md w-full object-cover">
+    <div class="relative group">
+        <!-- Carrusel contenedor -->
+        <div class="relative w-full overflow-hidden">
+            <div id="loop-carousel" class="flex gap-6 animate-scroll hover:pause-animation">
+                {% for vehiculo in vehiculos %}
+                <div class="min-w-[300px] bg-white/10 p-4 rounded-xl shadow-lg">
+                    <div class="w-full h-48 flex justify-center items-center overflow-hidden rounded-lg bg-black/10">
+                        <img src="{% static vehiculo.url_vehiculo %}" alt="Vehículo" class="h-full object-cover" />
+                    </div>
+                    <h3 class="text-white mt-4 font-bold text-lg">
+                        {{ vehiculo.marca_nombre }} - {{ vehiculo.modelo_nombre }} {{ vehiculo.año }}
+                    </h3>
+                    <p class="text-gray-300 text-sm">{{ vehiculo.tipo_descripcion }}</p>
+                </div>
+                {% endfor %}
+
+                <!-- Duplicamos para el loop infinito -->
+                {% for vehiculo in vehiculos %}
+                <div class="min-w-[300px] bg-white/10 p-4 rounded-xl shadow-lg">
+                    <div class="w-full h-48 flex justify-center items-center overflow-hidden rounded-lg bg-black/10">
+                        <img src="{% static vehiculo.url_vehiculo %}" alt="Vehículo" class="h-full object-cover" />
+                    </div>
+                    <h3 class="text-white mt-4 font-bold text-lg">
+                        {{ vehiculo.marca_nombre }} - {{ vehiculo.modelo_nombre }} {{ vehiculo.año }}
+                    </h3>
+                    <p class="text-gray-300 text-sm">{{ vehiculo.tipo_descripcion }}</p>
+                </div>
+                {% endfor %}
             </div>
-            {% else %}
-                <p class="text-center text-sm text-gray-400 mb-6">Este vehículo no tiene imagen disponible.</p>
-            {% endif %}
-
-            <h3 class="text-xl font-semibold mb-2">
-            {{ vehiculo.marca_nombre }} - {{ vehiculo.modelo_nombre }} {{ vehiculo.año }}
-            </h3>
-
-            <p class="text-gray-300 text-sm mb-4">{{ vehiculo.tipo_descripcion }}</p>
-            
-            <a href="{% url 'auto' vehiculo.id_vehiculo %}"
-                class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">
-                Ver más
-            </a>
         </div>
-        {% endfor %}
+
     </div>
 </section>
+
 
 <!-- Sección: ¿Por qué elegirnos? -->
 <section class="py-20 px-6 max-w-7xl mx-auto">
@@ -83,4 +90,16 @@
         </div>
     </div>
 </section>
+
+
+<script>
+    function scrollCarousel(direction) {
+        const carousel = document.getElementById('loop-carousel');
+        const scrollAmount = 320; // Ajustalo según el tamaño de las tarjetas
+
+        carousel.scrollLeft += direction * scrollAmount;
+    }
+</script>
+
+
 {% endblock %}

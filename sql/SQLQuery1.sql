@@ -12,6 +12,70 @@ SELECT * FROM ParqueoVehiculo;
 SELECT * FROM Proveedor;
 SELECT * FROM HorarioTrabajo;
 SELECT * FROM Departamento;
+SELECT * FROM Empleado;
+SELECT * FROM Contrato;
+SELECT * FROM ContratoVenta;
+SELECT * FROM Empleado WHERE id_Empleado = 1;
+
+SELECT * FROM Usuario u
+LEFT JOIN Cliente c ON c.Usuario_id = u.id_Usuario
+WHERE u.Correo = 'diego@example.com';
+
+SELECT 
+    c.id_Cliente AS id_cliente,
+    p.PrimerNombre AS Nombre, 
+    p.PrimerApellido AS Apellido
+FROM Cliente c
+INNER JOIN Usuario u ON c.Usuario_id = u.id_Usuario
+INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+WHERE c.id_Cliente = 1;
+
+ALTER TABLE Contrato DROP COLUMN RecargoIncumplimiento;
+ALTER TABLE ContratoAlquiler
+ADD RecargoIncumplimiento DECIMAL(13,2) NOT NULL DEFAULT 0.00;
+GO
+
+SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
+  tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
+  v.PrecioVenta, v.Estado
+FROM Vehiculo v
+INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+WHERE uv.descripcion = 'Venta' AND Disponibilidad = 1;
+
+SELECT 
+p.PrimerNombre AS Nombre, 
+p.PrimerApellido AS Apellido,
+e.id_Empleado AS id_Empleado
+FROM Empleado e
+INNER JOIN Usuario u ON e.Usuario_id = u.id_Usuario
+INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+WHERE u.id_Usuario = 2;
+
+SELECT 
+p.PrimerNombre AS Nombre, 
+p.PrimerApellido AS Apellido,
+c.id_Cliente AS id_Cliente
+FROM Cliente c
+INNER JOIN Usuario u ON c.Usuario_id = u.id_Usuario
+INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+WHERE u.id_Usuario = 1;
+
+SELECT 
+    c.id_Cliente,
+    p.PrimerNombre,
+    p.SegundoNombre,
+    p.PrimerApellido,
+    p.SegundoApellido,
+    u.Correo,
+    p.Telefono,
+    p.Direccion_id
+FROM Cliente c
+INNER JOIN Usuario u ON c.Usuario_id = u.id_Usuario
+INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+WHERE u.Correo = 'diego@example.com';
 
 SELECT id_Usuario, Correo, Contrasenia, Rol_id FROM Usuario WHERE Correo = 'diego@example.com';
 

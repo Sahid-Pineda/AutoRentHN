@@ -68,8 +68,92 @@ def register_user(data):
         print(f"Error al registrar usuario: {e}")
         raise
 
-def traer_cliente(correo):
-    return execute_query(QUERIES['get_cliente_by_correo'], [correo])
+def crear_contrato_venta(data):
+    try:
+        for campo in ['terminos', 'garantia']:
+            if not data.get(campo):  # Si es '', None o no existe
+                data[campo] = None
+
+        # Paso 1: Insertar en Contrato
+        contrato_id = execute_insert_returning_id(
+            QUERIES['insert_contrato'],
+            (
+                data['empleado_id'],
+                data['cliente_id'],
+                data['vehiculo_id'],
+                data['fecha'],
+                data['terminos'],
+                data['garantia'],
+                data['tipo_contrato'],
+                data['estado'],
+                data['firma'],
+            )
+        )
+
+        # Paso 2: Insertar en Contrato Venta
+        execute_insert(
+            QUERIES['insert_contrato_venta'],
+            (
+                contrato_id,
+                data['monto'],
+            )
+        )
+
+        return contrato_id
+    except Exception as e:
+        print(f"Error al crear contrato de venta: {e}")
+        raise
+
+def crear_contrato_alquiler(data):
+    try:
+        for campo in ['terminos', 'garantia', 'politica']:
+            if not data.get(campo):  # Si es '', None o no existe
+                data[campo] = None
+
+        # Paso 1: Insertar en Contrato
+        contrato_id = execute_insert_returning_id(
+            QUERIES['insert_contrato'],
+            (
+                data['empleado_id'],
+                data['cliente_id'],
+                data['vehiculo_id'],
+                data['fecha'],
+                data['terminos'],
+                data['garantia'],
+                data['tipo_contrato'],
+                data['estado'],
+                data['firma'],
+            )
+        )
+
+        # Paso 2: Insertar en Contrato Venta
+        execute_insert(
+            QUERIES['insert_contrato_alquiler'],
+            (
+                contrato_id,
+                data['fecha_inicio'],
+                data['fecha_fin'],
+                data['fecha_entrega_real'],
+                data['kilometraje'],
+                data['politica_combustible'],
+                data['es_tardia'],
+                data['es_extensible'],
+                data['reporte_danios'],
+                data['clausulas'],
+                data['recargo_incumplimiento'],
+            )
+        )
+
+        return contrato_id
+    except Exception as e:
+        print(f"Error al crear contrato de venta: {e}")
+        raise
+
+def traer_cliente_id(cliente_id):
+    return consultar_una_fila_dict(QUERIES['get_cliente_by_id'], (cliente_id,))
+
+def traer_cliente_correo(correo):
+    return consultar_una_fila_dict(QUERIES['get_cliente_by_correo'], (correo))
 
 def traer_empleado(empleado_id):
     return consultar_una_fila_dict(QUERIES['get_empleado_by_id'], (empleado_id,))
@@ -84,13 +168,16 @@ def traer_colonias(ciudad_id):
     return consultar_todas_filas_dict(QUERIES['obtener_colonia'], (ciudad_id,))
 
 def traer_vehiculos():
-    return consultar_todas_filas_dict(QUERIES['get_vehiculos_disponibles_venta'])
+    return consultar_todas_filas_dict(QUERIES['get_all_vehicles'])
 
 def traer_vehiculos_alquiler():
     return consultar_todas_filas_dict(QUERIES['get_vehicle_by_uso_Alquiler'])
 
 def traer_vehiculos_venta():
     return consultar_todas_filas_dict(QUERIES['get_vehicle_by_uso_Venta'])
+
+def actualizar_estado_vehiculo(vehiculo_id):
+    return execute_insert(QUERIES['update_disponibilidad'], vehiculo_id)
 
 def traer_vehiculo(vehiculo_id):
     return consultar_una_fila_dict(QUERIES['get_vehicle_by_id'], (vehiculo_id,))

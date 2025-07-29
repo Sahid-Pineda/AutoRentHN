@@ -1,20 +1,31 @@
-from django.shortcuts import render, redirect
-from .db_utils import execute_query, execute_insert_returning_id, execute_insert
-from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias, traer_vehiculo, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta
-from .services import traer_cliente, traer_vehiculos, traer_empleado
-from .utils import login_required
-from django.http import JsonResponse
-from .queries import QUERIES
+import os
 import pyodbc
+import logging #Registra eventos (errores, advertencias, información) dureante la ejecución
 import datetime
 from decimal import Decimal
+from .queries import QUERIES
+from django.urls import reverse
+from django.contrib import messages
+from django.conf import settings
+from .utils import login_required
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from .services import traer_cliente_id, traer_cliente_correo, traer_vehiculos, traer_empleado
+from .services import crear_contrato_venta, actualizar_estado_vehiculo, crear_contrato_alquiler
+from .db_utils import execute_query, execute_insert_returning_id, execute_insert
+from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias, traer_vehiculo, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta
 
 # Create your views here.
-# El orden de trabajo es: Template -> View -> url -> service -> Query
+
+ruta_terminos_venta = os.path.join(settings.BASE_DIR, 'main' ,'templates' ,'contratos', 'textos_legales', 'terminos_venta.txt')
+ruta_terminos_alquiler = os.path.join(settings.BASE_DIR, 'main' ,'templates' , 'contratos', 'textos_legales', 'terminos_alquiler.txt')
+ruta_garantia = os.path.join(settings.BASE_DIR, 'main' ,'templates' , 'contratos', 'textos_legales', 'garantia_vehiculo.txt')
+ruta_politica = os.path.join(settings.BASE_DIR, 'main' ,'templates' , 'contratos', 'textos_legales', 'politica_combustible.txt')
+ruta_clausulas = os.path.join(settings.BASE_DIR, 'main' ,'templates' , 'contratos', 'textos_legales', 'clausulas.txt')
 
 def home_view(request):
     vehiculos = traer_vehiculos()
-    return render(request, 'home.html', {'vehiculos': vehiculos})
+    return render(request, 'vista_principal/home.html', {'vehiculos': vehiculos})
 
 def login_view(request):
     if request.method == 'POST':
@@ -28,42 +39,42 @@ def login_view(request):
             request.session['user_email'] = email
             request.session['rol_id'] = rol_id
             if rol_id == 1:
-
                 return redirect('admin_view')
             elif rol_id == 2:
                 return redirect('cliente_view')
             elif rol_id == 3:
                 return redirect('empleado_view')
         else:
-            return render(request, 'login.html', {'error': 'Credenciales inválidas'})
-    return render(request, 'login.html')
+            return render(request, 'vista_principal/login.html', {'error': 'Credenciales inválidas'})
+    return render(request, 'vista_principal/login.html')
 
 @login_required
 def admin_view(request):
-    return render(request, 'admin_home.html')
+    return render(request, 'usuarios/admin_home.html')
 
 @login_required
 def cliente_view(request):
-    return render(request, 'cliente_home.html')
+    return render(request, 'usuarios/cliente_home.html')
+
+@login_required
+def empleado_view(request):
+    return render(request, 'usuarios/empleado_home.html')
 
 @login_required
 def cliente_venta_view(request):
     vehiculos = traer_vehiculos_venta()
-    return render(request, 'cliente_venta.html', {'vehiculos': vehiculos})
+    print("Vehiculos encontrados: ", vehiculos)
+    return render(request, 'usuarios/cliente_venta.html', {'vehiculos': vehiculos})
 
 @login_required
 def cliente_alquiler_view(request):
     vehiculos = traer_vehiculos_alquiler()
-    return render(request, 'cliente_alquiler.html', {'vehiculos': vehiculos})
+    return render(request, 'usuarios/cliente_alquiler.html', {'vehiculos': vehiculos})
 
 @login_required
 def auto_view(request, id_vehiculo):
     vehiculo = traer_vehiculo(id_vehiculo)
-    return render(request, 'visualizar_auto.html', {'vehiculo': vehiculo})
-
-@login_required
-def empleado_view(request):
-    return render(request, 'empleado_home.html')
+    return render(request, 'vehiculos/visualizar_auto.html', {'vehiculo': vehiculo})
 
 @login_required
 def logout_view(request):
@@ -108,14 +119,14 @@ def register_view(request):
                 try:
                     data[valor] = int(data[valor])
                 except ValueError:
-                    return render(request, 'register.html', {'error': f'ID inválido para {valor}'})
+                    return render(request, 'vista_principal/register.html', {'error': f'ID inválido para {valor}'})
             else:
                 data[valor] = None
 
         register_user(data)
         return redirect('login')
 
-    return render(request, 'register.html', {
+    return render(request, 'vista_principal/register.html', {
         'colonias': colonias,
         'ciudades': ciudades,
         'departamentos': departamentos,
@@ -137,24 +148,389 @@ def obtener_colonia(request):
     datos = traer_colonias(ciudad_id)
     return JsonResponse({'colonias': datos})
 
-def buscar_cliente(request):
-    correo = request.GET.get('correo', '')
-    if not correo:
-        return JsonResponse({'clientes': []})
-    
-    clientes = execute_query(QUERIES['get_cliente_by_correo'], (f"%{correo}%",))
-    clientes_data = [
-        {
-            'id_cliente': c[0],
-            'nombre': f"{c[1]} {c[3]}",  # Primer nombre y primer apellido
-            'correo': c[5]
-        } for c in clientes
-    ]
-    return JsonResponse({'clientes': clientes_data})
+def contrato_venta_view(request):
+    return render(request, 'contratos/contrato_venta_exito.html')
 
+def contrato_alquiler_view(request):
+    return render(request, 'contratos/contrato_alquiler_exito.html')
+
+def obtener_datos_sesion():
+    pass
+
+
+logger = logging.getLogger(__name__)
+@login_required
+def contrato_venta_view(request):
+    terminos_venta, garantia = leer_archivos_terminos_y_garantia_venta()
+    paso = int(request.GET.get('paso', 1))
+
+    # Manejadores para cada paso
+    def manejar_paso_1():
+        if request.method == "POST":
+            correo = request.POST.get("correo", "").strip()
+            if not correo:
+                messages.error(request, "El correo es obligatorio")
+                return render(request, "contratos/contrato_venta_cliente.html")
+            
+            cliente = traer_cliente_correo(correo)
+            if not cliente:
+                messages.error(request, "Cliente no encontrado")
+                return render(request, "contratos/contrato_venta_cliente.html")
+            
+            request.session["cliente_id"] = cliente["id_cliente"]
+            request.session["cliente_correo"] = cliente["correo"]
+            return redirect(f"{reverse('contrato_venta_view')}?paso=2")
+        
+        return render(request, "contratos/contrato_venta_cliente.html")
+
+    def manejar_paso_2():
+        if request.method == "POST":
+            vehiculo_id = request.POST.get("vehiculo_id")
+            if not vehiculo_id:
+                messages.error(request, "Debes seleccionar un vehículo")
+            else:
+                request.session["vehiculo_id"] = vehiculo_id
+                return redirect(f"{reverse('contrato_venta_view')}?paso=3")
+        
+        vehiculos = traer_vehiculos_venta()
+        return render(request, "contratos/contrato_venta_vehiculo.html", {"vehiculos": vehiculos})
+
+    def manejar_paso_3():
+        # Validar datos de sesión
+        sesion_datos = {
+            "cliente": traer_cliente_id(request.session.get("cliente_id")),
+            "vehiculo": traer_vehiculo(request.session.get("vehiculo_id")),
+            "empleado": traer_empleado(request.session.get("user_id")),
+        }
+        
+        if not all(sesion_datos.values()):
+            messages.error(request, "Datos incompletos. Comienza nuevamente.")
+            return redirect(f"{reverse('contrato_venta_view')}?paso=1")
+
+        if request.method == "POST":
+            if request.POST.get("acepto_terminos") != "on":
+                messages.error(request, "Debes aceptar los términos para continuar")
+                return render(request, "contratos/contrato_venta_confirmar.html", {
+                    **sesion_datos, # **desempaquetador de diccionarios
+                    "terminos": terminos_venta,
+                    "garantia": garantia,
+                })
+            return redirect(f"{reverse('contrato_venta_view')}?paso=4")
+        
+        return render(request, "contratos/contrato_venta_confirmar.html", {
+            **sesion_datos,
+            "terminos": terminos_venta,
+            "garantia": garantia,
+        })
+
+    def manejar_paso_4():
+        # Validar datos de sesión
+        sesion_datos = {
+            "cliente": traer_cliente_id(request.session.get("cliente_id")),
+            "vehiculo": traer_vehiculo(request.session.get("vehiculo_id")),
+            "empleado": traer_empleado(request.session.get("user_id")),
+        }
+        
+        if not all(sesion_datos.values()):
+            messages.error(request, "Datos incompletos. Comienza nuevamente.")
+            return redirect(f"{reverse('contrato_venta_view')}?paso=1")
+
+        if request.method == "POST":
+            try:
+                data = {
+                    "cliente_id": request.session["cliente_id"],
+                    "vehiculo_id": request.session["vehiculo_id"],
+                    "empleado_id": request.session.get("user_id"),
+                    "fecha": request.POST.get("fecha"),
+                    "terminos": terminos_venta,
+                    "garantia": garantia,
+                    "tipo_contrato": "Venta",
+                    "estado": "Activo",  # Valor por defecto
+                    "firma": 1 if request.POST.get("firma") == "on" else 0,
+                    "monto": float(request.POST.get("monto", 0)),
+                }
+                
+                crear_contrato_venta(data)
+                actualizar_estado_vehiculo(data['vehiculo_id'])
+                
+                # Limpiar solo las keys usadas
+                for key in ["cliente_id", "vehiculo_id", "empleado_id"]:
+                    request.session.pop(key, None)
+                
+                messages.success(request, "Contrato creado exitosamente")
+                return redirect("contrato_exito_venta")
+            
+            except Exception as e:
+                logger.error(f"Error al crear contrato: {str(e)}", exc_info=True)
+                messages.error(request, "Error interno al procesar el contrato")
+                return render(request, "contratos/contrato_venta_formulario.html", sesion_datos)
+        
+        return render(request, "contratos/contrato_venta_formulario.html", sesion_datos)
+
+    # Router de pasos
+    manejadores = {
+        1: manejar_paso_1,
+        2: manejar_paso_2,
+        3: manejar_paso_3,
+        4: manejar_paso_4,
+    }
+    
+    return manejadores.get(paso, lambda: redirect(f"{reverse('contrato_venta_view')}?paso=1"))()
 
 #Gestion Contratos
+"""@login_required
+def contrato_venta_view(request):
+    terminos_venta, terminos_alquiler, garantia = leer_archivos_terminos_y_garantia()
+    paso = int(request.GET.get('paso', 1))
+
+    if paso == 1:
+        if request.method == "POST":
+            correo = request.POST.get("correo")
+            cliente = traer_cliente_correo(correo)
+            if cliente:
+                request.session["cliente_id"] = cliente["id_cliente"]
+                request.session["cliente_correo"] = cliente["correo"]
+                return redirect("/contrato/?paso=2")
+            else:
+                return render(request, "contratos/contrato_venta_cliente.html", {'error': 'Cliente no encontrado'})
+        return render(request, "contratos/contrato_venta_cliente.html")
+
+    elif paso == 2:
+        if request.method == "POST":
+            vehiculo_id = request.POST.get("vehiculo_id")
+            print("DEBUG vehiculo_id recibido:", vehiculo_id)
+            if vehiculo_id:
+                request.session["vehiculo_id"] = vehiculo_id
+                return redirect("/contrato/?paso=3")
+        vehiculos = traer_vehiculos_venta()
+        return render(request, "contratos/contrato_venta_vehiculo.html", {"vehiculos": vehiculos})
+
+    elif paso == 3:
+
+        cliente_id = request.session.get("cliente_id")
+        vehiculo_id = request.session.get("vehiculo_id")
+        usuario_id = request.session.get("user_id")
+
+        cliente = traer_cliente_id(cliente_id)
+        vehiculo = traer_vehiculo(vehiculo_id)
+        empleado_info = traer_empleado(usuario_id)
+
+        if not all([cliente, vehiculo, empleado_info]):
+            return redirect("/contrato/?paso=1")
+
+        request.session["empleado_id"] = empleado_info["id_empleado"]
+
+        if request.method == "POST":
+            if request.POST.get("acepto_terminos") == "on":
+                return redirect("/contrato/?paso=4")
+                #request.session["terminos"] = terminos_venta
+                #request.session["garantia"] = garantia
+            else:
+                return render(request, "contratos/contrato_venta_formulario.html", {
+                    "cliente": cliente,
+                    "vehiculo": vehiculo,
+                    "terminos": terminos_venta,
+                    "garantia": garantia,
+                    "error": "Debes aceptar los términos para continuar"
+                })
+
+        return render(request, "contratos/contrato_venta_confirmar.html", {
+            "cliente": cliente,
+            "vehiculo": vehiculo,
+            "empleado": empleado_info,
+            "terminos": terminos_venta,
+            "garantia": garantia,
+        })
+
+    elif paso == 4:
+        cliente_id = request.session.get("cliente_id")
+        vehiculo_id = request.session.get("vehiculo_id")
+        usuario_id = request.session.get("user_id")
+
+        cliente = traer_cliente_id(cliente_id)
+        vehiculo = traer_vehiculo(vehiculo_id)
+        empleado_info = traer_empleado(usuario_id)
+        
+        if request.method == "POST":
+            try:
+                data = {
+                    "cliente_id": request.session["cliente_id"],
+                    "vehiculo_id": request.session["vehiculo_id"],
+                    "empleado_id": request.session.get("empleado_id"),
+                    "fecha": request.POST.get("fecha"),
+                    "terminos": terminos_venta,
+                    "garantia": garantia,
+                    "tipo_contrato": request.POST.get("tipo_contrato"),
+                    "estado": request.POST.get("estado"),
+                    "firma": 1 if request.POST.get("firma") == "on" else 0,
+                    "monto": request.POST.get("monto")
+                }
+                print("Datos del contrato a insertar:", data)
+                crear_contrato_venta(data)
+                actualizar_estado_vehiculo(data['vehiculo_id'])
+                request.session.flush()
+                return redirect("contrato_exito")
+            except Exception as e:
+                print("ERROR: 0", e)
+                return render(request, "contratos/contrato_venta_formulario.html", {
+                    "cliente": cliente,
+                    "vehiculo": vehiculo,
+                    "empleado": empleado_info,
+                })
+        return render(request, "contratos/contrato_venta_formulario.html", {
+        "cliente": cliente,
+        "vehiculo": vehiculo,
+        "empleado": empleado_info,
+        })
+    return redirect("/contrato/?paso=1")
+"""
+
+def leer_archivos_terminos_y_garantia_venta():
+    with open(ruta_terminos_venta, "r", encoding="utf-8") as f:
+        terminos_venta = f.read()
+    with open(ruta_garantia, "r", encoding="utf-8") as f:
+        garantia = f.read()
+    return terminos_venta, garantia
+
+def leer_archivos_terminos_y_garantia_alquiler():
+    with open(ruta_terminos_alquiler, "r", encoding="utf-8") as f:
+        terminos_alquiler = f.read()
+    with open(ruta_garantia, "r", encoding="utf-8") as f:
+        garantia = f.read()
+    with open(ruta_politica, "r", encoding="utf-8") as f:
+        politica = f.read()
+    with open(ruta_clausulas, "r", encoding="utf-8") as f:
+        clausulas = f.read()
+    return terminos_alquiler, garantia, politica, clausulas
+
 @login_required
+def contrato_alquiler_view(request):
+    terminos_alquiler, garantia, politica, clausulas = leer_archivos_terminos_y_garantia_alquiler()
+    paso = int(request.GET.get('paso', 1))
+    
+    # Manejadores para cada paso
+    def manejar_paso_1():
+        if request.method == "POST":
+            correo = request.POST.get("correo", "").strip()
+            if not correo:
+                messages.error(request, "El correo es obligatorio")
+                return render(request, "contratos/contrato_alquiler_cliente.html")
+            
+            cliente = traer_cliente_correo(correo)
+            if not cliente:
+                messages.error(request, "Cliente no encontrado")
+                return render(request, "contratos/contrato_alquiler_cliente.html")
+            
+            request.session["cliente_id"] = cliente["id_cliente"]
+            request.session["cliente_correo"] = cliente["correo"]
+            return redirect(f"{reverse('contrato_alquiler_view')}?paso=2")
+        
+        return render(request, "contratos/contrato_alquiler_cliente.html")
+
+    def manejar_paso_2():
+        if request.method == "POST":
+            vehiculo_id = request.POST.get("vehiculo_id")
+            if not vehiculo_id:
+                messages.error(request, "Debes seleccionar un vehículo")
+            else:
+                request.session["vehiculo_id"] = vehiculo_id
+                return redirect(f"{reverse('contrato_alquiler_view')}?paso=3")
+        
+        vehiculos = traer_vehiculos_alquiler()
+        return render(request, "contratos/contrato_alquiler_vehiculo.html", {"vehiculos": vehiculos})
+    
+    def manejar_paso_3():
+        # Validar datos de sesión
+        sesion_datos = {
+            "cliente": traer_cliente_id(request.session.get("cliente_id")),
+            "vehiculo": traer_vehiculo(request.session.get("vehiculo_id")),
+            "empleado": traer_empleado(request.session.get("user_id")),
+        }
+        
+        if not all(sesion_datos.values()):
+            messages.error(request, "Datos incompletos. Comienza nuevamente.")
+            return redirect(f"{reverse('contrato_venta_view')}?paso=1")
+
+        if request.method == "POST":
+            if request.POST.get("acepto_terminos") != "on":
+                messages.error(request, "Debes aceptar los términos para continuar")
+                return render(request, "contratos/contrato_alquiler_confirmar.html", {
+                    **sesion_datos, # **desempaquetador de diccionarios
+                    "terminos": terminos_alquiler,
+                    "garantia": garantia,
+                })
+            return redirect(f"{reverse('contrato_alquiler_view')}?paso=4")
+        
+        return render(request, "contratos/contrato_alquiler_confirmar.html", {
+            **sesion_datos,
+            "terminos": terminos_alquiler,
+            "garantia": garantia,
+        })
+
+    def manejar_paso_4():
+        # Validar datos de sesión
+        sesion_datos = {
+            "cliente": traer_cliente_id(request.session.get("cliente_id")),
+            "vehiculo": traer_vehiculo(request.session.get("vehiculo_id")),
+            "empleado": traer_empleado(request.session.get("user_id")),
+        }
+        
+        if not all(sesion_datos.values()):
+            messages.error(request, "Datos incompletos. Comienza nuevamente.")
+            return redirect(f"{reverse('contrato_alquiler_view')}?paso=1")
+
+        if request.method == "POST":
+            try:
+                data = {
+                    "cliente_id": request.session["cliente_id"],
+                    "vehiculo_id": request.session["vehiculo_id"],
+                    "empleado_id": request.session.get("user_id"),
+                    "fecha": request.POST.get("fecha"),
+                    "terminos": terminos_alquiler,
+                    "garantia": garantia,
+                    "tipo_contrato": "Alquiler",
+                    "estado": "Activo",
+                    "firma": 1 if request.POST.get("firma") == "on" else 0,
+                    "fecha_inicio": request.POST.get["fecha_inicio"],
+                    "fecha_fin": request.POST.get["fecha_fin"],
+                    "fecha_entrega_real": request.POST.get["fecha_entrega_real"],
+                    "kilometraje": request.POST.get["kilometraje"],
+                    "politica_combustible": politica,
+                    "es_tardia": 1 if request.POST.get("es_tardia") == "on" else 0,
+                    "es_extensible": 1 if request.POST.get("es_extensible") == "on" else 0,
+                    "reporte_danios": request.POST.get("reporte_danios"),
+                    "clausulas": clausulas,
+                    "recargo_incumplimiento": float(request.POST.get("recargo_incumplimiento", 0)),
+                }
+                
+                crear_contrato_alquiler(data)
+                actualizar_estado_vehiculo(data['vehiculo_id'])
+                
+                # Limpiar solo las keys usadas
+                for key in ["cliente_id", "vehiculo_id", "empleado_id"]:
+                    request.session.pop(key, None)
+                
+                messages.success(request, "Contrato creado exitosamente")
+                return redirect("contrato_exito")
+            
+            except Exception as e:
+                logger.error(f"Error al crear contrato: {str(e)}", exc_info=True)
+                messages.error(request, "Error interno al procesar el contrato")
+                return render(request, "contratos/contrato_venta_formulario.html", sesion_datos)
+        
+        return render(request, "contratos/contrato_venta_formulario.html", sesion_datos)
+
+    # Router de pasos
+    manejadores = {
+        1: manejar_paso_1,
+        2: manejar_paso_2,
+        3: manejar_paso_3,
+        4: manejar_paso_4,
+    }
+    
+    return manejadores.get(paso, lambda: redirect(f"{reverse('contrato_alquiler_view')}?paso=1"))()
+
+"""@login_required
 def contrato_venta_view(request):
     id_usuario = request.session.get('user_id')
     empleado = traer_empleado(id_usuario)
@@ -219,8 +595,4 @@ def contrato_venta_view(request):
         'vehiculos': vehiculos,
         'cliente': cliente,
         'empleado': empleado
-    })
-
-
-def contrato_alquiler_view(request):
-    return render(request, 'contrato_alquiler.html')
+    })"""
