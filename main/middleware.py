@@ -11,6 +11,11 @@ class RolMiddleware:
 
     def __call__(self, request):
         path = request.path
+
+        # Deja ver URL super user
+        #if path.startswith('/admin/'):
+        #    return self.get_response(request)
+        
         rol_id = request.session.get('rol_id')
 
         for ruta, roles_permitidos in self.restricciones.items():

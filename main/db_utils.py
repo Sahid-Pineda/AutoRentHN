@@ -90,16 +90,28 @@ def execute_insert(query, params=None):
 def execute_insert_returning_id(query, params=None):
     conn = get_db_connection()
     cursor = conn.cursor()
-    try:       
+    try:
+        query_final = query.strip() + "; SELECT CAST(SCOPE_IDENTITY() AS INT);"
+        print("Query ejecutada:", query_final)
+        print("Con params:", params)
+       
         if params:
-            cursor.execute(query + "; SELECT SCOPE_IDENTITY();", params)
+            cursor.execute(query_final, params)
         else:
-            cursor.execute(query + "; SELECT SCOPE_IDENTITY();")
+            cursor.execute(query_final)
+
         cursor.nextset()
+            
         result = cursor.fetchone()
-        inserted_id = result[0]
-        conn.commit()
-        return int(inserted_id)
+
+        if result and result[0] is not None:
+            inserted_id = result[0]
+            print("ID INSERTADO:", inserted_id)
+            conn.commit()
+            return int(inserted_id)
+        else:
+            raise Exception("No se pudo obtener el ID generado con SCOPE_IDENTITY().")
+        
     except pyodbc.Error as e:
         print(f"Error al insertar y obtener ID: {e}")
         raise

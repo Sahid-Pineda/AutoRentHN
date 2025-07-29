@@ -29,26 +29,26 @@ QUERIES = {
     SELECT 
     p.PrimerNombre AS Nombre, 
     p.PrimerApellido AS Apellido,
-    c.id_Cliente AS id_Cliente
+    c.id_Cliente AS id_cliente
     FROM Cliente c
     INNER JOIN Usuario u ON c.Usuario_id = u.id_Usuario
     INNER JOIN Persona p ON u.Persona_id = p.id_Persona
-    WHERE u.id_Usuario = ?;
+    WHERE c.id_Cliente = ?;
     """,
     "get_cliente_by_correo": """
     SELECT 
-    c.id_Cliente,
+    c.id_Cliente AS id_cliente,
     p.PrimerNombre,
     p.SegundoNombre,
     p.PrimerApellido,
     p.SegundoApellido,
-    u.Correo,
+    u.Correo AS correo,
     p.Telefono,
     p.Direccion_id
     FROM Cliente c
     INNER JOIN Usuario u ON c.Usuario_id = u.id_Usuario
     INNER JOIN Persona p ON u.Persona_id = p.id_Persona
-    WHERE u.Correo LIKE ?
+    WHERE u.Correo = ?;
     """,
 
     "insert_tipo_exoneracion": "INSERT INTO TipoExoneracion (Descripcion) VALUES (?)",
@@ -57,7 +57,7 @@ QUERIES = {
 
     # Consultas relacionadas con Empleado
     "get_empleado_by_id": """
-   SELECT 
+    SELECT 
     p.PrimerNombre AS Nombre, 
     p.PrimerApellido AS Apellido,
     e.id_Empleado AS id_Empleado
@@ -69,12 +69,16 @@ QUERIES = {
  
     # Consultar para Contrato
     'insert_contrato': """
-        INSERT INTO Contrato (Vendedor_id, Cliente_id, Vehiculo_id, FechaContrato, TerminosCondiciones, GarantiaRequerida, RecargoIncumplimiento, TipoContrato, EstadoContrato, FirmaCliente)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        INSERT INTO Contrato (Vendedor_id, Cliente_id, Vehiculo_id, FechaContrato, TerminosCondiciones, GarantiaRequerida, TipoContrato, EstadoContrato, FirmaCliente)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,
     'insert_contrato_venta': """
         INSERT INTO ContratoVenta (id_Contrato, FechaVenta, Monto)
-        VALUES (?, ?, ?);
+        VALUES (?, GETDATE(), ?)
+    """,
+    'insert_contrato_alquiler': """
+    INSERT INTO ContratoAlquiler (id_Contrato, FechaInicioAlquiler, FechaFinAlquiler, FechaEntregaReal, KilometrajePermitido, PoliticaCombustible, EsTardía, EsExtensible, ResporteDanios, Clausulas, RecargoIncumplimiento)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,
     
     #Consultas para Vehiculos
@@ -105,7 +109,8 @@ QUERIES = {
     "get_all_vehicles": """
     SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS anio, 
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion, v.PrecioVenta,
-           v.PrecioAlquiler, v.Estado
+           v.PrecioAlquiler, v.Estado,
+           v.Url_Vehiculo AS url_vehiculo
     FROM Vehiculo v
     INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
     INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
@@ -116,9 +121,10 @@ QUERIES = {
 
     #Agregar que devuelve el imagen_url del Vehiculo en BD
     "get_vehicle_by_uso_Alquiler": """
-    SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS año, 
+    SELECT v.id_vehiculo AS vehiculo_id, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS año, 
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
-           v.PrecioAlquiler, v.Estado
+           v.PrecioAlquiler, v.Estado,
+           v.Url_Vehiculo AS url_vehiculo
     FROM Vehiculo v
     INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
     INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
@@ -129,9 +135,10 @@ QUERIES = {
 
     #Agregar que devuelve el imagen_url del Vehiculo en BD
     "get_vehicle_by_uso_Venta": """
-    SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS año,
+    SELECT v.id_vehiculo AS vehiculo_id, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
-           v.PrecioVenta, v.Estado
+           v.PrecioVenta, v.Estado,
+           v.Url_Vehiculo AS url_vehiculo
     FROM Vehiculo v
     INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
     INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
@@ -140,6 +147,9 @@ QUERIES = {
 	WHERE uv.descripcion = 'Venta' AND Disponibilidad = 1
     """,
 
+    "update_disponibilidad": """
+    UPDATE Vehiculo SET Disponibilidad = 0 WHERE id_Vehiculo = ?;
+    """,
     #Agregar que devuelve el imagen_url del Vehiculo en BD
     "get_vehicle_by_id": """
     SELECT  v.id_Vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
@@ -147,12 +157,13 @@ QUERIES = {
 		tv.nombreTipo AS tipo_nombre, tv.descripcion AS tipo_descripcion, 
 		uv.descripcion AS uso_descripcion, v.PrecioVenta AS precio_de_venta, 
 		v.PrecioAlquiler AS precio_de_alquiler, v.Estado AS estado, 
-		v.TipoCombustible AS tipo_de_combustible
+		v.TipoCombustible AS tipo_de_combustible,
+        v.Url_Vehiculo AS url_vehiculo
     FROM Vehiculo v
     INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
     INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
     INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
     INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
-	WHERE v.id_Vehiculo = ?
+	WHERE v.id_Vehiculo = ?;
     """,
 }

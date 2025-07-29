@@ -1,6 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'vista_principal/base.html' %}
 
 {% block content %}
+{% load static %}
 <div id="tsparticles" class="absolute top-0 left-0 w-full h-full -z-10"></div>
 
 <section class="py-16 px-6 bg-sky-950 bg-opacity-60 backdrop-blur rounded-xl max-w-7xl mx-auto">
@@ -10,9 +11,9 @@
         <div class="group bg-white/10 p-6 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition duration-300 transform hover:-translate-y-2"
             id="Id_Vehiculo" name="Id_Vehiculo">
 
-            {% if vehiculo.imagen_url %}
+            {% if vehiculo.url_vehiculo %}
             <div class="flex justify-center mb-6">
-                <img src="{{ vehiculo.imagen_url }}" alt="Imagen del vehículo"
+                <img src="{% static vehiculo.url_vehiculo %}" alt="Imagen del vehículo"
                     class="rounded-xl shadow-lg max-w-md w-full object-cover">
             </div>
             {% else %}
@@ -25,7 +26,7 @@
 
             <p class="text-gray-300 text-sm mb-4">{{ vehiculo.tipo_descripcion }}</p>
 
-            <a href="{% url 'auto' vehiculo.id_vehiculo %}"
+            <a href="{% url 'auto' vehiculo.vehiculo_id %}"
                 class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">
                 Ver más
             </a>

@@ -28,7 +28,7 @@ finally:
 import bcrypt
 
 #Para encriptar contraseñas para guardar manual en la BD
-password = "A123"
+password = "Maradona123"
 # bcrypt necesita el password en bytes
 password_bytes = password.encode('utf-8')
 
@@ -39,8 +39,8 @@ hashed = bcrypt.hashpw(password_bytes, salt)
 print("\n" + hashed.decode())  # Esto es lo que se guarda en la DB
 
 #Para comparar contraseñas
-hashed = b"$2b$12$tsTNYcVEuzoOCGrhw7iT..kKncmupNbdGYCOcK07QvjCrasqIHg3m"
-password = b"MiContraP@ssw0rd!"
+hashed = b"$2b$12$og0Rc8tLPLCgRM76gZsvB.J3ArH1Zt21lGs461K2sw3vtrncoMRhe"
+password = b"Maradona123"
 
 if bcrypt.checkpw(password, hashed):
     print("\n" + "La contraseña es correcta")

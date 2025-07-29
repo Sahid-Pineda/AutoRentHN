@@ -1,0 +1,27 @@
+Política de Combustible - Alquiler de Vehículos
+
+1. Entrega del Vehículo:
+   - El vehículo se entregará con el tanque de combustible lleno.
+   - El cliente deberá devolver el vehículo con el tanque lleno al mismo nivel de entrega.
+
+2. Cargos por Combustible:
+   - Si el vehículo se devuelve sin el tanque lleno, se aplicará un cargo por:
+     • Combustible faltante: Precio por litro/galón según tarifas locales.
+     • Cargo por servicio de reabastecimiento (USD $X o % del valor del combustible).
+   - No se aceptan recibos de combustible externos para justificar el nivel de combustible al devolver el vehículo.
+
+3. Opción de Pre-Pago de Combustible (Opcional):
+   - El cliente puede optar por pre-pagar un tanque lleno al inicio del alquiler:
+     • Se paga el combustible a precio competitivo.
+     • No hay reembolso por combustible no utilizado.
+     • El cliente puede devolver el vehículo con cualquier nivel de combustible sin cargos adicionales.
+
+4. Verificación:
+   - El nivel de combustible se registrará en el contrato de alquiler tanto al inicio como al final del período de alquiler.
+
+5. Excepciones:
+   - En caso de emergencias (ej.: riesgo de quedarse sin combustible en carretera), el cliente deberá notificar a la empresa y presentar el comprobante de compra para ajustar el cargo.
+
+6. Combustible en Vehículos Eléctricos/Híbridos:
+   - Para vehículos eléctricos, se aplicará un cargo por energía no recargada según kWh consumidos.
+   - Se sumará un cargo por servicio de recarga.

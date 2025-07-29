@@ -1,0 +1,100 @@
+{% extends 'vista_principal/bg_vistas.html' %}
+
+{% block content %}
+{% load static %}
+<div class="min-h-screen flex items-center justify-center bg-zinc-900 p-20">
+    <div class="w-full max-w-4xl p-8 rounded-xl shadow-lg bg-zinc-950/90 text-white max-h-[90vh] overflow-y-auto">
+
+        <h2 class="text-3xl font-extrabold mb-6 flex items-center gap-3">
+            <i class="fas fa-file-signature text-blue-500 text-2xl"></i>
+            Confirmar Contrato
+        </h2>
+        <div class="flex justify-between mb-6">
+            <div>
+                <p class="text-blue-200">N° <span id="numero_contrato">{{ numero_contrato }}</span></p>
+            </div>
+            <div class="text-right">
+                <p class="text-blue-200">Fecha: <span id="fecha">{{ fecha|date:"d/m/Y" }}</span></p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-sm">
+            <div class="flex items-center gap-2 bg-zinc-800 p-4 rounded-lg shadow-sm">
+                <i class="fas fa-user text-blue-400"></i>
+                <span><strong>Cliente:</strong> {{cliente.id_cliente }} {{ cliente.nombre }}
+                    {{ cliente.apellido }}</span>
+            </div>
+
+            <div class="flex items-center gap-2 bg-zinc-800 p-4 rounded-lg shadow-sm">
+                <i class="fas fa-car text-green-400"></i>
+                <span><strong>Vehículo:</strong> {{ vehiculo.marca_nombre }} {{ vehiculo.modelo_nombre }}</span>
+            </div>
+
+            <div class="flex items-center gap-2 bg-zinc-800 p-4 rounded-lg shadow-sm">
+                <i class="fas fa-id-badge text-yellow-400"></i>
+                <span><strong>Empleado ID:</strong> {{ empleado.id_empleado }} {{empleado.nombre}} </span>
+            </div>
+        </div>
+
+        <form method="POST" class="space-y-6 text-sm">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <label class="block">
+                    <span class="text-white font-semibold flex items-center gap-2">
+                        <i class="fas fa-calendar-alt text-blue-400"></i>
+                        Fecha del contrato:
+                    </span>
+                    <input type="date" name="fecha" required
+                        class="w-full mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                </label>
+
+                <label class="block">
+                    <span class="text-white font-semibold flex items-center gap-2">
+                        <i class="fas fa-file-contract text-pink-400"></i>
+                        Tipo de contrato:
+                    </span>
+                    <div class="w-full mt-1 p-3 rounded bg-zinc-700 text-white">
+                        Venta
+                    </div>
+                </label>
+
+                <label class="block">
+                    <span class="text-white font-semibold flex items-center gap-2">
+                        <i class="fas fa-tasks text-red-400"></i>
+                        Estado del contrato:
+                    </span>
+                    <select name="estado" required
+                        class="w-full mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-red-500 outline-none">
+                        <option value="Activo">Activo</option>
+                        <option value="Finalizado">Finalizado</option>
+                        <option value="Pendiente">Cancelado</option>
+                    </select>
+                </label>
+
+                <label class="block">
+                    <span class="text-white font-semibold flex items-center gap-2">
+                        <i class="fas fa-dollar-sign text-lime-400"></i>
+                        Monto total:
+                    </span>
+                    <input type="number" name="monto" step="0.01" required
+                        class="w-full mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-lime-500 outline-none" />
+                </label>
+
+                <label class="block">
+                    <span class="text-white font-semibold flex items-center gap-2">
+                        <i class="fas fa-signature text-cyan-400"></i>
+                        Firma del cliente (¿Acepta Contrato?):
+                    </span>
+                    <input type="checkbox" name="firma"
+                        class="mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-cyan-500 outline-none" />
+                </label>
+            </div>
+
+            <button type="submit"
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded font-bold transition text-white text-lg">
+                Finalizar Contrato
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

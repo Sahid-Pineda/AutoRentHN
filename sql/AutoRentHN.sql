@@ -9,13 +9,16 @@ GO
 CREATE TABLE RolUsuario (
 id_RolUsuario INTEGER PRIMARY KEY IDENTITY(1,1),
 Nombre VARCHAR(100) NOT NULL,
-Descripcion TEXT
+Descripcion TEXT,
+FechaCreacion DATETIME DEFAULT GETDATE(),
+FechaModificacion DATETIME
 );
 GO
 
 CREATE TABLE UsoVehiculo (
 id_UsoVehiculo INTEGER PRIMARY KEY IDENTITY(1,1),
-Descripcion VARCHAR(100) NOT NULL
+Descripcion VARCHAR(100) NOT NULL,
+Activo BIT DEFAULT 0
 );
 GO
 
@@ -76,14 +79,16 @@ GO
 CREATE TABLE Pais (
 id_Pais INTEGER PRIMARY KEY IDENTITY(1,1),
 Nombre VARCHAR(100) NOT NULL UNIQUE,
-Codigo_Pais VARCHAR(2) NOT NULL UNIQUE
+Codigo_Pais VARCHAR(3) NOT NULL UNIQUE,
+UsuarioCreacion VARCHAR(50),
+FechaCreacion DATETIME DEFAULT GETDATE()
 );
 GO
 
 CREATE TABLE Departamento (
 id_Departamento INTEGER PRIMARY KEY IDENTITY(1,1),
-Nombre VARCHAR(100) NOT NULL,
-Codigo_Departamento VARCHAR(2) NOT NULL UNIQUE,
+Nombre VARCHAR(100) NOT NULL UNIQUE,
+Codigo_Departamento VARCHAR(4) NOT NULL UNIQUE,
 Pais_id INTEGER NOT NULL,
 FOREIGN KEY (Pais_id) REFERENCES Pais(id_Pais)
 );
@@ -142,11 +147,11 @@ GO
 CREATE TABLE Proveedor (
 id_Proveedor INTEGER PRIMARY KEY IDENTITY(1,1),
 NombreProveedor VARCHAR(100) NOT NULL,
-RTN VARCHAR(20) NOT NULL,
+RTN VARCHAR(20) NOT NULL UNIQUE,
 ContactoNombre VARCHAR(100) NOT NULL,
-Telefono VARCHAR(15) NOT NULL,
-Correo VARCHAR(100) NOT NULL,
-Direccion VARCHAR(100),
+Telefono VARCHAR(15) NOT NULL UNIQUE,
+Correo VARCHAR(100) NOT NULL UNIQUE,
+Direccion VARCHAR(200),
 TipoProveedor VARCHAR(100) NOT NULL
 );
 GO
@@ -155,18 +160,21 @@ CREATE TABLE Vehiculo (
 id_Vehiculo INTEGER PRIMARY KEY IDENTITY(1,1),
 Modelo_id INTEGER NOT NULL,
 Anio VARCHAR(4) NOT NULL,
-VIN VARCHAR(17) NOT NULL,
+VIN VARCHAR(17) NOT NULL UNIQUE,
 Motor VARCHAR(100) NOT NULL,
-MatriculaPlaca VARCHAR(100) NOT NULL,
-Disponibilidad BIT DEFAULT 1,
-PrecioVenta DECIMAL(13,2) NOT NULL,
-PrecioAlquiler DECIMAL(13,2) NOT NULL,
-TipoVehiculo_id INTEGER,
+MatriculaPlaca VARCHAR(100) NOT NULL UNIQUE,
+Disponibilidad BIT DEFAULT 0,
+PrecioVenta DECIMAL(13,2) NOT NULL DEFAULT 0.00,
+PrecioAlquiler DECIMAL(13,2) NOT NULL DEFAULT 0.00,
+TipoVehiculo_id INTEGER NOT NULL,
 Estado VARCHAR(100) NOT NULL,
 TipoCombustible VARCHAR(100) NOT NULL,
-UsoVehiculo_id INTEGER,
-ParqueoVehiculo_id INTEGER,
-Proveedor_id INTEGER,
+UsoVehiculo_id INTEGER NOT NULL,
+ParqueoVehiculo_id INTEGER NOT NULL,
+Proveedor_id INTEGER NOT NULL,
+Url_Vehiculo VARCHAR(255),
+KilometrajeActual INTEGER DEFAULT 0,
+UltimoMantenimiento DATE,
 FOREIGN KEY (Modelo_id) REFERENCES Modelo(id_Modelo),
 FOREIGN KEY (TipoVehiculo_id) REFERENCES TipoVehiculo(id_TipoVehiculo),	
 FOREIGN KEY (UsoVehiculo_id) REFERENCES UsoVehiculo(id_UsoVehiculo),
@@ -200,10 +208,10 @@ GO
 
 CREATE TABLE Seguro (
 id_Seguro INTEGER PRIMARY KEY IDENTITY(1,1),
-TipoSeguro_id INTEGER,
+TipoSeguro_id INTEGER NOT NULL,
 Cobertura TEXT,
 Costo DECIMAL(13,2) NOT NULL,
-Vehiculo_id INTEGER,
+Vehiculo_id INTEGER NOT NULL,
 FOREIGN KEY (TipoSeguro_id) REFERENCES TipoSeguro(id_TipoSeguro),
 FOREIGN KEY (Vehiculo_id) REFERENCES Vehiculo(id_Vehiculo)
 );
@@ -216,9 +224,9 @@ PrimerNombre VARCHAR(100) NOT NULL,
 SegundoNombre VARCHAR(100),
 PrimerApellido VARCHAR(100) NOT NULL,
 SegundoApellido VARCHAR(100),
-Telefono VARCHAR(20) NOT NULL,
+Telefono VARCHAR(20) NOT NULL UNIQUE,
 Direccion_id INTEGER NOT NULL,
-Sexo CHAR(1) NOT NULL,
+Sexo CHAR(1) NOT NULL CHECK (Sexo IN ('M', 'F', 'O')),
 FOREIGN KEY (Direccion_id) REFERENCES Direccion(id_Direccion)
 );
 GO
@@ -234,7 +242,7 @@ FOREIGN KEY (Persona_id) REFERENCES Persona(id_Persona)
 
 CREATE TABLE Usuario (
 id_Usuario INTEGER PRIMARY KEY IDENTITY(1,1),
-Correo VARCHAR(250) NOT NULL UNIQUE,
+Correo VARCHAR(250) NOT NULL UNIQUE CHECK (Correo LIKE '%_@_%._%'),
 Contrasenia VARCHAR(250) NOT NULL,
 InicioUso DATETIME,
 FinUso DATETIME,
@@ -265,7 +273,7 @@ CREATE TABLE Empleado (
 id_Empleado INTEGER PRIMARY KEY IDENTITY(1,1),
 Horario_id INTEGER,
 Usuario_id INTEGER NOT NULL,
-Estado VARCHAR(100),
+Estado VARCHAR(100) CHECK (Estado IN ('Activo', 'Inactivo', 'Suspendido')),
 FOREIGN KEY (Horario_id) REFERENCES HorarioTrabajo(id_HorarioTrabajo),
 FOREIGN KEY (Usuario_id) REFERENCES Usuario(id_Usuario)
 );
@@ -285,7 +293,7 @@ GO
 --Tablas Contratos y Transacciones
 CREATE TABLE PuntoEmision (
 id_PuntoEmision INTEGER PRIMARY KEY IDENTITY(1,1),
-CodigoPuntoEmision VARCHAR(3) NOT NULL,
+CodigoPuntoEmision VARCHAR(3) NOT NULL UNIQUE,
 Descripcion TEXT,
 Establecimiento_id INTEGER NOT NULL,
 FOREIGN KEY (Establecimiento_id) REFERENCES Establecimiento(id_Establecimiento)
@@ -314,10 +322,13 @@ Vehiculo_id INTEGER NOT NULL,
 FechaContrato DATETIME DEFAULT GETDATE(),
 TerminosCondiciones TEXT,
 GarantiaRequerida TEXT,
-RecargoIncumplimiento DECIMAL(13,2) NOT NULL,
 TipoContrato VARCHAR(100) NOT NULL CHECK (TipoContrato IN ('Alquiler', 'Venta')),
 EstadoContrato VARCHAR(100) NOT NULL CHECK (EstadoContrato IN ('Activo', 'Finalizado', 'Cancelado')),
-FirmaCliente BIT DEFAULT 1,
+FirmaCliente BIT DEFAULT 0,
+UsuarioCreacion VARCHAR(50),
+FechaCreacion DATETIME DEFAULT GETDATE(),
+UsuarioModificacion VARCHAR(50),
+FechaModificacion DATETIME,
 FOREIGN KEY (Vehiculo_id) REFERENCES Vehiculo(id_Vehiculo),
 FOREIGN KEY (Vendedor_id) REFERENCES Empleado(id_Empleado),
 FOREIGN KEY (Cliente_id) REFERENCES Cliente(id_Cliente)
@@ -326,15 +337,16 @@ GO
 
 CREATE TABLE ContratoAlquiler (
 id_Contrato INTEGER PRIMARY KEY,
-FechaInicioAlquiler DATETIME,
-FechaFinAlquiler DATETIME,
+FechaInicioAlquiler DATETIME NOT NULL,
+FechaFinAlquiler DATETIME NOT NULL,
 FechaEntregaReal DATETIME,
 KilometrajePermitido INTEGER NOT NULL,
 PoliticaCombustible TEXT,
-EsTardia BIT DEFAULT 1,
-EsExtensible BIT DEFAULT 1,
+EsTardia BIT DEFAULT 0,
+EsExtensible BIT DEFAULT 0,
 ReporteDanios TEXT,
 Clausulas TEXT,
+RecargoIncumplimiento DECIMAL(13,2) NOT NULL DEFAULT 0.00,
 FOREIGN KEY (id_Contrato) REFERENCES Contrato(id_Contrato),
 );
 GO
