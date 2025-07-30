@@ -9,6 +9,7 @@ from .views import admin_view, cliente_view, empleado_view
 from .views import cliente_venta_view, cliente_alquiler_view
 from .views import auto_view
 from .views import contrato_venta_view, contrato_alquiler_view, contrato_venta_view, contrato_alquiler_view
+from .views import marcar_vehiculo, desmarcar_vehiculo
 
 urlpatterns = [
     path('', home_view, name='home'),
@@ -29,6 +30,8 @@ urlpatterns = [
     
 
     path('auto/<int:id_vehiculo>/', auto_view, name='auto'),
+    path("marcar/<int:id_vehiculo>/", marcar_vehiculo, name="marcar_vehiculo"),
+    path("desmarcar/<int:id_vehiculo>/", desmarcar_vehiculo, name="desmarcar_vehiculo"),
 
     # url js
     path('api/obtener-departamento/', obtener_departamento, name='obtener-departamento'),

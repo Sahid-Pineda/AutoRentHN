@@ -26,11 +26,13 @@
 
             <p class="text-gray-300 text-sm mb-4">{{ vehiculo.tipo_descripcion }}</p>
 
-            <a href="{% url 'auto' vehiculo.vehiculo_id %}"
+            <a href="{% url 'auto' vehiculo.id_vehiculo %}"
                 class="inline-block mt-auto bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded transition">
                 Ver más
             </a>
         </div>
+        {% empty %}
+                <p>No se ha encontrado ningún vehículo.</p>
         {% endfor %}
     </div>
 </section>

@@ -249,8 +249,6 @@ INSERT INTO Vehiculo (Modelo_id, Anio, VIN, Motor, MatriculaPlaca, Disponibilida
 (8, '2022', '1FA6P8TH5L5123456', '2.3L EcoBoost I4 Turbo', 'FOR8642', 1, 360000.00, 250.00, 2, 'Nuevo', 'Gasolina', 2, 1, 1, 'img/vehiculos/ForMustang2022.png', 0, '2025-06-25');
 GO
 
-
-
 --Insert de un Empleado
 INSERT INTO Direccion (Descripcion, Colonia_id) VALUES
 ('Calle Principal', 1),
