@@ -304,11 +304,25 @@ SELECT * FROM ContratoAlquiler;
 SELECT * FROM Contrato;
 SELECT * FROM Vehiculo;
 
-DELETE FROM ContratoVenta WHERE id_Contrato = 9;
-DELETE FROM Contrato WHERE id_Contrato = 9;
+DELETE FROM ContratoAlquiler WHERE id_Contrato = 2011;
+DELETE FROM ContratoAlquiler WHERE id_Contrato = 2012;
+DELETE FROM ContratoAlquiler WHERE id_Contrato = 2013;
+DELETE FROM ContratoVenta WHERE id_Contrato = 1004;
+DELETE FROM ContratoVenta WHERE id_Contrato = 1005;
+DELETE FROM ContratoVenta WHERE id_Contrato = 2005;
+DELETE FROM ContratoVenta WHERE id_Contrato = 2006;
+DELETE FROM Contrato WHERE id_Contrato = 1004;
+DELETE FROM Contrato WHERE id_Contrato = 1005;
+DELETE FROM Contrato WHERE id_Contrato = 2005;
+DELETE FROM Contrato WHERE id_Contrato = 2006;
 
+UPDATE Vehiculo SET Disponibilidad = 1 WHERE id_Vehiculo = 1;
 UPDATE Vehiculo SET Disponibilidad = 1 WHERE id_Vehiculo = 2;
+UPDATE Vehiculo SET Disponibilidad = 1 WHERE id_Vehiculo = 3;
+UPDATE Vehiculo SET Disponibilidad = 1 WHERE id_Vehiculo = 4;
+UPDATE Vehiculo SET Disponibilidad = 1 WHERE id_Vehiculo = 5;
 UPDATE Vehiculo SET Disponibilidad = 1 WHERE id_Vehiculo = 6;
+UPDATE Vehiculo SET Disponibilidad = 1 WHERE id_Vehiculo = 7;
 UPDATE Vehiculo SET Disponibilidad = 1 WHERE id_Vehiculo = 8;
 
 UPDATE Vehiculo SET Url_Vehiculo = 'img/vehiculos/HondaCivic2023.png' WHERE id_Vehiculo = 2 ;
