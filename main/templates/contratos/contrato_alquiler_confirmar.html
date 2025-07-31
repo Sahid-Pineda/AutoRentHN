@@ -1,57 +1,72 @@
-{% extends 'vista_principal/bg_vistas.html' %}
+{% extends 'vista_principal/base.html' %}
 
-{% block content%}
-{% load static%}
-<div class="min-h-screen flex   items-center justify-center text-white p-20">
+{% block content %}
+{% load static %}
+<div class="min-h-screen flex items-center justify-center text-white p-20">
     <form method="POST" class="max-w-3xl mx-auto p-8 bg-zinc-900 rounded-2xl shadow-xl space-y-6">
         {% csrf_token %}
 
+        <!-- Términos -->
         <div>
             <h3 class="text-2xl font-semibold text-white flex items-center gap-2 mb-2">
-                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M8.25 6.75h.008v.008H8.25V6.75zm0 3h.008v.008H8.25v-.008zm0 3h.008v.008H8.25v-.008zM12 6.75h.008v.008H12V6.75zm0 3h.008v.008H12v-.008zm0 3h.008v.008H12v-.008zM15.75 6.75h.008v.008h-.008V6.75zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3.75 5.25c0-.621.504-1.125 1.125-1.125h14.25c.621 0 1.125.504 1.125 1.125v13.5c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.75V5.25z" />
-                </svg>
+                <i class="fas fa-table text-blue-400"></i>
                 Términos y Condiciones
             </h3>
-            <pre
-                class="bg-zinc-800 text-gray-200 p-4 rounded-md overflow-x-auto text-sm whitespace-pre-wrap">{{ terminos }}</pre>
+            <pre class="bg-zinc-800 text-gray-200 p-4 rounded-md overflow-x-auto text-sm whitespace-pre-wrap">
+                {{ terminos }}
+            </pre>
         </div>
 
+        <!-- Garantía -->
         <div>
             <h3 class="text-2xl font-semibold text-white flex items-center gap-2 mb-2">
-                <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" stroke-width="1.5"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M11.25 3.375L4.5 20.625M19.5 20.625l-6.75-17.25M12 9v4.5m0 3h.008v.008H12V16.5z" />
-                </svg>
+                <i class="fas fa-shield-alt text-yellow-400"></i>
                 Garantía
             </h3>
-            <pre
-                class="bg-zinc-800 text-gray-200 p-4 rounded-md overflow-x-auto text-sm whitespace-pre-wrap">{{ garantia }}</pre>
+            <pre class="bg-zinc-800 text-gray-200 p-4 rounded-md overflow-x-auto text-sm whitespace-pre-wrap">
+                {{ garantia }}
+            </pre>
         </div>
 
+        <!-- Política de combustible -->
+        <div>
+            <h3 class="text-2xl font-semibold text-white flex items-center gap-2 mb-2">
+                <i class="fas fa-gas-pump text-green-400"></i>
+                Política de Combustible
+            </h3>
+            <pre class="bg-zinc-800 text-gray-200 p-4 rounded-md overflow-x-auto text-sm whitespace-pre-wrap">
+                {{ politica }}
+            </pre>
+        </div>
+
+        <!-- Cláusulas -->
+        <div>
+            <h3 class="text-2xl font-semibold text-white flex items-center gap-2 mb-2">
+                <i class="fas fa-scroll text-purple-400"></i>
+                Cláusulas Generales
+            </h3>
+            <pre class="bg-zinc-800 text-gray-200 p-4 rounded-md overflow-x-auto text-sm whitespace-pre-wrap">
+                {{ clausula }}
+            </pre>
+        </div>
+
+        <!-- Aceptar términos -->
         <div class="flex items-start space-x-3 text-white">
             <input type="checkbox" name="acepto_terminos" id="acepto" required class="mt-1 accent-blue-500">
             <label for="acepto" class="text-sm leading-snug">
-                Acepto los <span class="underline text-blue-400">términos y condiciones</span> y la política de
-                garantía.
+                Acepto los <span class="underline text-blue-400">términos, condiciones, cláusulas y política de
+                    combustible</span>.
             </label>
         </div>
 
+        <!-- Botón continuar -->
         <div class="text-right">
             <button type="submit"
                 class="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
+                <i class="fas fa-arrow-right"></i>
                 Continuar
             </button>
         </div>
     </form>
 </div>
-
-{% endblock%}
+{% endblock %}

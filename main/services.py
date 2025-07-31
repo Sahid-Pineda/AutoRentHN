@@ -106,7 +106,7 @@ def crear_contrato_venta(data):
 
 def crear_contrato_alquiler(data):
     try:
-        for campo in ['terminos', 'garantia', 'politica']:
+        for campo in ['terminos', 'garantia', 'politica', 'clausulas']:
             if not data.get(campo):  # Si es '', None o no existe
                 data[campo] = None
 
