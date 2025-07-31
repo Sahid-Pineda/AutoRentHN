@@ -38,6 +38,8 @@
                     class="font-semibold text-cyan-300">Placa:</span> {{ v.placa }}</p>
             <p><i class="fas fa-circle text-cyan-300 w-5 inline-block"></i> <span
                     class="font-semibold text-cyan-300">Estado:</span> {{ v.estado }}</p>
+            <p><i class="fas fa-circle text-cyan-300 w-5 inline-block"></i> <span
+                    class="font-semibold text-cyan-300">Ultimo Mantenimiento:</span> {{ v.ultimo_mantenimiento }}</p>
         </div>
 
         <div class="space-y-2">
@@ -53,8 +55,24 @@
                     class="font-semibold text-cyan-300">Precio de Alquiler:</span> L. {{ v.precio_de_alquiler }}</p>
             <p><i class="fas fa-gas-pump text-cyan-300 w-5 inline-block"></i> <span
                     class="font-semibold text-cyan-300">Combustible:</span> {{ v.tipo_de_combustible }}</p>
+            <p><i class="fas fa-gas-pump text-cyan-300 w-5 inline-block"></i> <span
+                    class="font-semibold text-cyan-300">Kilometraje Actual:</span> {{ v.kilometraje }}</p>
         </div>
     </div>
+
+    <!--  Botón: Marcar Auto -->
+    {% if ya_marcado %}
+    <a href="{% url 'desmarcar_vehiculo' id_vehiculo=v.id_vehiculo %}"
+        class="inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+        Quitar de marcados
+    </a>
+    {% else %}
+    <a href="{% url 'marcar_vehiculo' id_vehiculo=v.id_vehiculo %}"
+        class="inline-block bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700 transition">
+        Marcar vehículo
+    </a>
+    {% endif %}
+
     {% endwith %}
     {% else %}
     <p class="text-center text-sm text-gray-400">No se encontró ningún vehículo para mostrar.</p>

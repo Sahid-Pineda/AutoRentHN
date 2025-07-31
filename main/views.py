@@ -10,8 +10,9 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from .services import traer_cliente_id, traer_cliente_correo, traer_vehiculos, traer_empleado
 from .services import crear_contrato_venta, actualizar_estado_vehiculo, crear_contrato_alquiler
-from .db_utils import execute_query, execute_insert_returning_id, execute_insert
-from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias, traer_vehiculo, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta
+from .db_utils import execute_query, get_db_connection
+from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias
+from .services import traer_vehiculo_id, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta
 
 # Create your views here.
 logger = logging.getLogger(__name__)
@@ -53,7 +54,35 @@ def admin_view(request):
 
 @login_required
 def cliente_view(request):
-    return render(request, 'usuarios/cliente_home.html', {'show_particles': True})
+    ids = request.session.get("vehiculos_marcados", [])
+    marcados = [] # Vehiculos Marcados
+
+    if ids:
+        placeholders = ",".join("?" for _ in ids)
+        query = f"""
+        SELECT  v.id_Vehiculo AS id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
+            v.VIN AS vin, v.Motor AS motor, v.MatriculaPlaca AS placa, 
+            tv.nombreTipo AS tipo_nombre, tv.descripcion AS tipo_descripcion, 
+            uv.descripcion AS uso_descripcion, v.PrecioVenta AS precio_de_venta, 
+            v.PrecioAlquiler AS precio_de_alquiler, v.Estado AS estado, 
+            v.TipoCombustible AS tipo_de_combustible,
+            v.Url_Vehiculo AS url_vehiculo, v.KilometrajeActual AS Kilometraje,
+            v.UltimoMantenimiento AS Ultimo_Mantenimiento
+        FROM Vehiculo v
+        INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+        INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+        INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
+        INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
+        WHERE v.id_Vehiculo IN ({placeholders})
+    """
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, ids)
+        columns = [col[0] for col in cursor.description]
+        marcados = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        conn.close()
+
+    return render(request, "usuarios/cliente_home.html", {"marcados": marcados, 'show_particles': True})
 
 @login_required
 def empleado_view(request):
@@ -62,7 +91,6 @@ def empleado_view(request):
 @login_required
 def cliente_venta_view(request):
     vehiculos = traer_vehiculos_venta()
-    print("Vehiculos encontrados: ", vehiculos)
     return render(request, 'usuarios/cliente_venta.html', {'vehiculos': vehiculos})
 
 @login_required
@@ -72,8 +100,16 @@ def cliente_alquiler_view(request):
 
 @login_required
 def auto_view(request, id_vehiculo):
-    vehiculo = traer_vehiculo(id_vehiculo)
-    return render(request, 'vehiculos/visualizar_auto.html', {'vehiculo': vehiculo})
+    vehiculo = traer_vehiculo_id(id_vehiculo)
+
+    # Verificar si está marcado
+    marcados = request.session.get("vehiculos_marcados", [])
+    ya_marcado = id_vehiculo in marcados
+
+    return render(request, "vehiculos/visualizar_auto.html", {
+        "vehiculo": vehiculo,
+        "ya_marcado": ya_marcado,
+    })
 
 @login_required
 def logout_view(request):
@@ -161,6 +197,23 @@ def leer_archivos_terminos_y_garantia_venta():
         garantia = f.read()
     return terminos_venta, garantia
 
+def marcar_vehiculo(request, id_vehiculo):
+    if "vehiculos_marcados" not in request.session:
+        request.session["vehiculos_marcados"] = []
+    if id_vehiculo not in request.session["vehiculos_marcados"]:
+        request.session["vehiculos_marcados"].append(id_vehiculo)
+        request.session.modified = True
+    return redirect("cliente_view")
+
+def desmarcar_vehiculo(request, id_vehiculo):
+    marcados = request.session.get("vehiculos_marcados", [])
+
+    if id_vehiculo in marcados:
+        marcados.remove(id_vehiculo)
+        request.session["vehiculos_marcados"] = marcados
+
+    return redirect("cliente_view")
+
 def leer_archivos_terminos_y_garantia_alquiler():
     with open(ruta_terminos_alquiler, "r", encoding="utf-8") as f:
         terminos_alquiler = f.read()
@@ -171,6 +224,7 @@ def leer_archivos_terminos_y_garantia_alquiler():
     with open(ruta_clausulas, "r", encoding="utf-8") as f:
         clausulas = f.read()
     return terminos_alquiler, garantia, politica, clausulas
+
 
 # Vista para crear un Contrato Venta
 @login_required
@@ -213,7 +267,7 @@ def contrato_venta_view(request):
         # Validar datos de sesión
         sesion_datos = {
             "cliente": traer_cliente_id(request.session.get("cliente_id")),
-            "vehiculo": traer_vehiculo(request.session.get("vehiculo_id")),
+            "vehiculo": traer_vehiculo_id(request.session.get("vehiculo_id")),
             "empleado": traer_empleado(request.session.get("user_id")),
         }
         
@@ -241,7 +295,7 @@ def contrato_venta_view(request):
         # Validar datos de sesión
         sesion_datos = {
             "cliente": traer_cliente_id(request.session.get("cliente_id")),
-            "vehiculo": traer_vehiculo(request.session.get("vehiculo_id")),
+            "vehiculo": traer_vehiculo_id(request.session.get("vehiculo_id")),
             "empleado": traer_empleado(request.session.get("user_id")),
         }
         
@@ -332,7 +386,7 @@ def contrato_alquiler_view(request):
         # Validar datos de sesión
         sesion_datos = {
             "cliente": traer_cliente_id(request.session.get("cliente_id")),
-            "vehiculo": traer_vehiculo(request.session.get("vehiculo_id")),
+            "vehiculo": traer_vehiculo_id(request.session.get("vehiculo_id")),
             "empleado": traer_empleado(request.session.get("user_id")),
         }
         
@@ -364,7 +418,7 @@ def contrato_alquiler_view(request):
         # Validar datos de sesión
         sesion_datos = {
             "cliente": traer_cliente_id(request.session.get("cliente_id")),
-            "vehiculo": traer_vehiculo(request.session.get("vehiculo_id")),
+            "vehiculo": traer_vehiculo_id(request.session.get("vehiculo_id")),
             "empleado": traer_empleado(request.session.get("user_id")),
             
         }

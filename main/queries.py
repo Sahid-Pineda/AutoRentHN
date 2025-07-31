@@ -89,23 +89,7 @@ QUERIES = {
     INNER JOIN Marca ma ON mo.Marca_id = ma.id_Marca
     WHERE mo.id_Marca = ?
     """,
-    'get_vehiculos_disponibles_venta': """
-    SELECT 
-    v.id_Vehiculo AS id_vehiculo, 
-    v.Modelo_id AS modelo_id, 
-    v.Anio AS anio, 
-    v.PrecioVenta AS precio_venta, 
-    v.MatriculaPlaca AS matricula_placa,
-    m.Nombre AS marca_nombre,
-    mo.Nombre AS modelo_nombre
-    FROM Vehiculo v
-    INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
-    INNER JOIN Modelo mo ON v.Modelo_id = mo.id_Modelo
-    INNER JOIN Marca m ON mo.Marca_id = m.id_Marca
-    WHERE uv.id_UsoVehiculo = 2; """,
 
-
-    #Agregar que devuelve el imagen_url del Vehiculo en BD
     "get_all_vehicles": """
     SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS anio, 
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion, v.PrecioVenta,
@@ -119,9 +103,8 @@ QUERIES = {
 	WHERE Disponibilidad = 1
     """,
 
-    #Agregar que devuelve el imagen_url del Vehiculo en BD
     "get_vehicle_by_uso_Alquiler": """
-    SELECT v.id_vehiculo AS vehiculo_id, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS año, 
+    SELECT v.id_vehiculo AS id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS año, 
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
            v.PrecioAlquiler, v.Estado,
            v.Url_Vehiculo AS url_vehiculo
@@ -133,9 +116,8 @@ QUERIES = {
 	WHERE uv.descripcion = 'Alquiler' AND Disponibilidad = 1
     """,
 
-    #Agregar que devuelve el imagen_url del Vehiculo en BD
     "get_vehicle_by_uso_Venta": """
-    SELECT v.id_vehiculo AS vehiculo_id, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
+    SELECT v.id_vehiculo AS id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
            v.PrecioVenta, v.Estado,
            v.Url_Vehiculo AS url_vehiculo
@@ -150,15 +132,16 @@ QUERIES = {
     "update_disponibilidad": """
     UPDATE Vehiculo SET Disponibilidad = 0 WHERE id_Vehiculo = ?;
     """,
-    #Agregar que devuelve el imagen_url del Vehiculo en BD
+
     "get_vehicle_by_id": """
-    SELECT  v.id_Vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
+    SELECT  v.id_Vehiculo AS id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
 		v.VIN AS vin, v.Motor AS motor, v.MatriculaPlaca AS placa, 
 		tv.nombreTipo AS tipo_nombre, tv.descripcion AS tipo_descripcion, 
 		uv.descripcion AS uso_descripcion, v.PrecioVenta AS precio_de_venta, 
 		v.PrecioAlquiler AS precio_de_alquiler, v.Estado AS estado, 
 		v.TipoCombustible AS tipo_de_combustible,
-        v.Url_Vehiculo AS url_vehiculo
+        v.Url_Vehiculo AS url_vehiculo, v.KilometrajeActual AS Kilometraje,
+		v.UltimoMantenimiento AS Ultimo_Mantenimiento
     FROM Vehiculo v
     INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
     INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca

@@ -179,5 +179,5 @@ def traer_vehiculos_venta():
 def actualizar_estado_vehiculo(vehiculo_id):
     return execute_insert(QUERIES['update_disponibilidad'], vehiculo_id)
 
-def traer_vehiculo(vehiculo_id):
+def traer_vehiculo_id(vehiculo_id):
     return consultar_una_fila_dict(QUERIES['get_vehicle_by_id'], (vehiculo_id,))
