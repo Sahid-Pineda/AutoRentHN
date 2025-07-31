@@ -77,7 +77,7 @@ QUERIES = {
         VALUES (?, GETDATE(), ?)
     """,
     'insert_contrato_alquiler': """
-    INSERT INTO ContratoAlquiler (id_Contrato, FechaInicioAlquiler, FechaFinAlquiler, FechaEntregaReal, KilometrajePermitido, PoliticaCombustible, EsTardía, EsExtensible, ResporteDanios, Clausulas, RecargoIncumplimiento)
+    INSERT INTO ContratoAlquiler (id_Contrato, FechaInicioAlquiler, FechaFinAlquiler, FechaEntregaReal, KilometrajePermitido, PoliticaCombustible, EsTardia, EsExtensible, ReporteDanios, Clausulas, RecargoIncumplimiento)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,
     
