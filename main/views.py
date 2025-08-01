@@ -419,8 +419,8 @@ def contrato_alquiler_view(request):
             try:
                 fecha_inicio = datetime.strptime(request.POST.get("fecha_inicio"), "%Y-%m-%d")
                 fecha_fin = datetime.strptime(request.POST.get("fecha_fin"), "%Y-%m-%d")
-                fecha_entrega_real_raw = request.POST.get("fecha_entrega_real")
-                fecha_entrega_real = datetime.strptime(fecha_entrega_real_raw, "%Y-%m-%d")
+                # fecha_entrega_real_raw = request.POST.get("fecha_entrega_real")
+                # fecha_entrega_real = datetime.strptime(fecha_entrega_real_raw, "%Y-%m-%d")
 
                 data = {
                     "cliente_id": request.session["cliente_id"],
@@ -434,10 +434,10 @@ def contrato_alquiler_view(request):
                     "firma": 1 if request.POST.get("firma") == "on" else 0,
                     "fecha_inicio": fecha_inicio,
                     "fecha_fin": fecha_fin,
-                    "fecha_entrega_real": fecha_entrega_real,
+                    # "fecha_entrega_real": fecha_entrega_real,
                     "kilometraje": int(request.POST.get("kilometraje", 0)),
                     "politica_combustible": politica,
-                    "es_tardia": 1 if request.POST.get("es_tardia") == "on" else 0,
+                    # "es_tardia": 1 if request.POST.get("es_tardia") == "on" else 0,
                     "es_extensible": 1 if request.POST.get("es_extensible") == "on" else 0,
                     "reporte_danios": request.POST.get("reporte_danios"),
                     "clausulas": clausulas,
