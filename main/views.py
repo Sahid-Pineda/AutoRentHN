@@ -10,9 +10,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from .services import traer_cliente_id, traer_cliente_correo, traer_vehiculos, traer_empleado
 from .services import crear_contrato_venta, actualizar_estado_vehiculo, crear_contrato_alquiler
-from .db_utils import execute_query, get_db_connection
-from .services import authenticate_user, register_user, traer_departamentos, traer_ciudades, traer_colonias
-from .services import traer_vehiculo_id, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta
+from .db_utils import ejecutar_query
+from .services import authenticate_user, register_user
+from .services import traer_departamentos, traer_ciudades, traer_colonias
+from .services import traer_vehiculo_id, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta, obtener_vehiculos_marcados
 
 # Create your views here.
 logger = logging.getLogger(__name__)
@@ -43,10 +44,13 @@ def login_view(request):
             elif rol_id == 2:
                 return redirect('cliente_view')
             elif rol_id == 3:
+                empleado = traer_empleado(id_usuario)
+                if empleado:
+                    request.session['empleado_id'] = empleado['id_empleado']
                 return redirect('empleado_view')
         else:
-            return render(request, 'vista_principal/login.html', {'error': 'Credenciales inválidas'})
-    return render(request, 'vista_principal/login.html', {'show_particles': False})
+            return render(request, 'vista_principal/login.html', {'error': 'Credenciales inválidas', 'show_particles': True})
+    return render(request, 'vista_principal/login.html', {'show_particles': True})
 
 @login_required
 def admin_view(request):
@@ -55,34 +59,11 @@ def admin_view(request):
 @login_required
 def cliente_view(request):
     ids = request.session.get("vehiculos_marcados", [])
-    marcados = [] # Vehiculos Marcados
-
-    if ids:
-        placeholders = ",".join("?" for _ in ids)
-        query = f"""
-        SELECT  v.id_Vehiculo AS id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
-            v.VIN AS vin, v.Motor AS motor, v.MatriculaPlaca AS placa, 
-            tv.nombreTipo AS tipo_nombre, tv.descripcion AS tipo_descripcion, 
-            uv.descripcion AS uso_descripcion, v.PrecioVenta AS precio_de_venta, 
-            v.PrecioAlquiler AS precio_de_alquiler, v.Estado AS estado, 
-            v.TipoCombustible AS tipo_de_combustible,
-            v.Url_Vehiculo AS url_vehiculo, v.KilometrajeActual AS Kilometraje,
-            v.UltimoMantenimiento AS Ultimo_Mantenimiento
-        FROM Vehiculo v
-        INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
-        INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
-        INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
-        INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
-        WHERE v.id_Vehiculo IN ({placeholders})
-    """
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(query, ids)
-        columns = [col[0] for col in cursor.description]
-        marcados = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        conn.close()
-
-    return render(request, "usuarios/cliente_home.html", {"marcados": marcados, 'show_particles': True})
+    marcados = obtener_vehiculos_marcados(ids)
+    return render(request, 'usuarios/cliente_home.html', {
+        "marcados": marcados,
+        'show_particles': True
+        })
 
 @login_required
 def empleado_view(request):
@@ -101,7 +82,6 @@ def cliente_alquiler_view(request):
 @login_required
 def auto_view(request, id_vehiculo):
     vehiculo = traer_vehiculo_id(id_vehiculo)
-
     # Verificar si está marcado
     marcados = request.session.get("vehiculos_marcados", [])
     ya_marcado = id_vehiculo in marcados
@@ -111,6 +91,24 @@ def auto_view(request, id_vehiculo):
         "ya_marcado": ya_marcado,
     })
 
+def marcar_vehiculo(request, id_vehiculo):
+    if "vehiculos_marcados" not in request.session:
+        request.session["vehiculos_marcados"] = []
+        
+    if id_vehiculo not in request.session["vehiculos_marcados"]:
+        request.session["vehiculos_marcados"].append(id_vehiculo)
+        request.session.modified = True
+    return redirect("cliente_view")
+
+def desmarcar_vehiculo(request, id_vehiculo):
+    marcados = request.session.get("vehiculos_marcados", [])
+
+    if id_vehiculo in marcados:
+        marcados.remove(id_vehiculo)
+        request.session["vehiculos_marcados"] = marcados
+
+    return redirect("cliente_view")
+
 @login_required
 def logout_view(request):
     request.session.flush()  # Elimina todos los datos de la sesión
@@ -118,18 +116,18 @@ def logout_view(request):
 
 def register_view(request):
     # Obtener datos para el formulario de registro
-    colonias = execute_query(QUERIES['get_all_colonias'])
-    ciudades = execute_query(QUERIES['get_all_ciudades'])
-    departamentos = execute_query(QUERIES['get_all_departamentos'])
-    paises = execute_query(QUERIES['get_all_paises'])
-    tipo_exoneracion = execute_query(QUERIES['get_all_tipo_exoneracion'])
+    colonias = ejecutar_query(QUERIES['get_all_colonias'])
+    ciudades = ejecutar_query(QUERIES['get_all_ciudades'])
+    departamentos = ejecutar_query(QUERIES['get_all_departamentos'])
+    paises = ejecutar_query(QUERIES['get_all_paises'])
+    #tipo_exoneracion = execute_query(QUERIES['get_all_tipo_exoneracion'])
 
     # Convertir los resultados a diccionarios para el template
     colonias= [{'colonia_id': c[0], 'nombre': c[1]} for c in colonias]
     ciudades = [{'ciudad_id': c[0], 'nombre': c[1]} for c in ciudades]
     departamentos = [{'departamento_id': d[0], 'nombre': d[1]} for d in departamentos]
     paises = [{'pais_id': p[0], 'nombre': p[1]} for p in paises]
-    tipo_exoneracion = [{'tipo_exoneracion_id': t[0], 'nombre': t[1]} for t in tipo_exoneracion]
+    #tipo_exoneracion = [{'tipo_exoneracion_id': t[0], 'nombre': t[1]} for t in tipo_exoneracion]
     
     if request.method == 'POST':
         data = {
@@ -157,16 +155,25 @@ def register_view(request):
                     return render(request, 'vista_principal/register.html', {'error': f'ID inválido para {valor}'})
             else:
                 data[valor] = None
-
-        register_user(data)
-        return redirect('login')
+        try:
+            register_user(data)
+            return redirect('login')
+        except ValueError as ve:
+            return render(request, 'vista_principal/register.html', {
+            'colonias': colonias,
+            'ciudades': ciudades,
+            'departamentos': departamentos,
+            'paises': paises,
+            'show_particles': True,
+            'error_mensaje': str(ve),
+            })
 
     return render(request, 'vista_principal/register.html', {
         'colonias': colonias,
         'ciudades': ciudades,
         'departamentos': departamentos,
         'paises': paises,
-        'show_particles': False
+        'show_particles': True
     })
 
 def obtener_departamento(request):
@@ -197,23 +204,6 @@ def leer_archivos_terminos_y_garantia_venta():
         garantia = f.read()
     return terminos_venta, garantia
 
-def marcar_vehiculo(request, id_vehiculo):
-    if "vehiculos_marcados" not in request.session:
-        request.session["vehiculos_marcados"] = []
-    if id_vehiculo not in request.session["vehiculos_marcados"]:
-        request.session["vehiculos_marcados"].append(id_vehiculo)
-        request.session.modified = True
-    return redirect("cliente_view")
-
-def desmarcar_vehiculo(request, id_vehiculo):
-    marcados = request.session.get("vehiculos_marcados", [])
-
-    if id_vehiculo in marcados:
-        marcados.remove(id_vehiculo)
-        request.session["vehiculos_marcados"] = marcados
-
-    return redirect("cliente_view")
-
 def leer_archivos_terminos_y_garantia_alquiler():
     with open(ruta_terminos_alquiler, "r", encoding="utf-8") as f:
         terminos_alquiler = f.read()
@@ -224,7 +214,6 @@ def leer_archivos_terminos_y_garantia_alquiler():
     with open(ruta_clausulas, "r", encoding="utf-8") as f:
         clausulas = f.read()
     return terminos_alquiler, garantia, politica, clausulas
-
 
 # Vista para crear un Contrato Venta
 @login_required
@@ -253,11 +242,11 @@ def contrato_venta_view(request):
 
     def manejar_paso_2():
         if request.method == "POST":
-            vehiculo_id = request.POST.get("vehiculo_id")
-            if not vehiculo_id:
+            id_vehiculo = request.POST.get("id_vehiculo")
+            if not id_vehiculo:
                 messages.error(request, "Debes seleccionar un vehículo")
             else:
-                request.session["vehiculo_id"] = vehiculo_id
+                request.session["id_vehiculo"] = id_vehiculo
                 return redirect(f"{reverse('contrato_venta_view')}?paso=3")
         
         vehiculos = traer_vehiculos_venta()
@@ -267,7 +256,7 @@ def contrato_venta_view(request):
         # Validar datos de sesión
         sesion_datos = {
             "cliente": traer_cliente_id(request.session.get("cliente_id")),
-            "vehiculo": traer_vehiculo_id(request.session.get("vehiculo_id")),
+            "vehiculo": traer_vehiculo_id(request.session.get("id_vehiculo")),
             "empleado": traer_empleado(request.session.get("user_id")),
         }
         
@@ -295,7 +284,7 @@ def contrato_venta_view(request):
         # Validar datos de sesión
         sesion_datos = {
             "cliente": traer_cliente_id(request.session.get("cliente_id")),
-            "vehiculo": traer_vehiculo_id(request.session.get("vehiculo_id")),
+            "vehiculo": traer_vehiculo_id(request.session.get("id_vehiculo")),
             "empleado": traer_empleado(request.session.get("user_id")),
         }
         
@@ -307,7 +296,7 @@ def contrato_venta_view(request):
             try:
                 data = {
                     "cliente_id": request.session["cliente_id"],
-                    "vehiculo_id": request.session["vehiculo_id"],
+                    "id_vehiculo": request.session["id_vehiculo"],
                     "empleado_id": request.session.get("user_id"),
                     "fecha": datetime.now(),
                     "terminos": terminos_venta,
@@ -319,10 +308,10 @@ def contrato_venta_view(request):
                 }
                 
                 crear_contrato_venta(data)
-                actualizar_estado_vehiculo(data['vehiculo_id'])
+                actualizar_estado_vehiculo(data['id_vehiculo'])
                 
                 # Limpiar solo las keys usadas
-                for key in ["cliente_id", "vehiculo_id", "empleado_id"]:
+                for key in ["cliente_id", "id_vehiculo", "empleado_id"]:
                     request.session.pop(key, None)
                 
                 messages.success(request, "Contrato creado exitosamente")
@@ -372,11 +361,11 @@ def contrato_alquiler_view(request):
 
     def manejar_paso_2():
         if request.method == "POST":
-            vehiculo_id = request.POST.get("vehiculo_id")
-            if not vehiculo_id:
+            id_vehiculo = request.POST.get("id_vehiculo")
+            if not id_vehiculo:
                 messages.error(request, "Debes seleccionar un vehículo")
             else:
-                request.session["vehiculo_id"] = vehiculo_id
+                request.session["id_vehiculo"] = id_vehiculo
                 return redirect(f"{reverse('contrato_alquiler_view')}?paso=3")
         
         vehiculos = traer_vehiculos_alquiler()
@@ -386,13 +375,13 @@ def contrato_alquiler_view(request):
         # Validar datos de sesión
         sesion_datos = {
             "cliente": traer_cliente_id(request.session.get("cliente_id")),
-            "vehiculo": traer_vehiculo_id(request.session.get("vehiculo_id")),
+            "vehiculo": traer_vehiculo_id(request.session.get("id_vehiculo")),
             "empleado": traer_empleado(request.session.get("user_id")),
         }
         
         if not all(sesion_datos.values()):
             messages.error(request, "Datos incompletos. Comienza nuevamente.")
-            return redirect(f"{reverse('contrato_venta_view')}?paso=1")
+            return redirect(f"{reverse('contrato_alquiler_view')}?paso=1")
 
         if request.method == "POST":
             if request.POST.get("acepto_terminos") != "on":
@@ -418,9 +407,8 @@ def contrato_alquiler_view(request):
         # Validar datos de sesión
         sesion_datos = {
             "cliente": traer_cliente_id(request.session.get("cliente_id")),
-            "vehiculo": traer_vehiculo_id(request.session.get("vehiculo_id")),
+            "vehiculo": traer_vehiculo_id(request.session.get("id_vehiculo")),
             "empleado": traer_empleado(request.session.get("user_id")),
-            
         }
         
         if not all(sesion_datos.values()):
@@ -436,7 +424,7 @@ def contrato_alquiler_view(request):
 
                 data = {
                     "cliente_id": request.session["cliente_id"],
-                    "vehiculo_id": request.session["vehiculo_id"],
+                    "id_vehiculo": request.session["id_vehiculo"],
                     "empleado_id": request.session.get("user_id"),
                     "fecha": datetime.now(),
                     "terminos": terminos_alquiler,
@@ -457,10 +445,10 @@ def contrato_alquiler_view(request):
                 }
                 
                 crear_contrato_alquiler(data)
-                actualizar_estado_vehiculo(data['vehiculo_id'])
+                actualizar_estado_vehiculo(data['id_vehiculo'])
                 
                 # Limpiar solo las keys usadas
-                for key in ["cliente_id", "vehiculo_id", "empleado_id"]:
+                for key in ["cliente_id", "id_vehiculo", "empleado_id"]:
                     request.session.pop(key, None)
                 
                 messages.success(request, "Contrato creado exitosamente")

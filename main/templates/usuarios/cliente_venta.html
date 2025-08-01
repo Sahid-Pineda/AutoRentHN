@@ -4,7 +4,7 @@
 {% load static%}
 <div id="tsparticles" class="absolute top-0 left-0 w-full h-full -z-10"></div>
 
-<section class="py-16 px-6 bg-sky-950 bg-opacity-60 backdrop-blur rounded-xl max-w-7xl mx-auto">
+<section class="py-16 px-6 backdrop-blur rounded-xl max-w-7xl mx-auto">
     <h2 class="text-3xl font-bold text-center mb-10">Descubre vehículos en venta</h2>
     <div class="grid md:grid-cols-3 gap-8">
         {% for vehiculo in vehiculos %}
@@ -31,7 +31,7 @@
             </a>
         </div>
         {% empty %}
-                <p>No se ha encontrado ningún vehículo.</p>
+        <p>No se ha encontrado ningún vehículo.</p>
         {% endfor %}
     </div>
 </section>

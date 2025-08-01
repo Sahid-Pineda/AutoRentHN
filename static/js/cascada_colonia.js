@@ -57,3 +57,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+// Espera 5 segundos y luego esconde el mensaje de error
+setTimeout(() => {
+  const mensaje = document.getElementById("mensaje-error");
+  if (mensaje) {
+    mensaje.style.display = "none";
+  }
+}, 5000); // 5000ms = 5 segundos
