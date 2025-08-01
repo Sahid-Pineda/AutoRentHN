@@ -2,81 +2,94 @@
 
 {% block content %}
 {% load static %}
-<div class="max-w-3xl mx-auto bg-zinc-950/80 p-8 rounded-xl shadow-lg text-white space-y-6">
+<div class="min-h-screen flex items-center justify-center bg-black bg-opacity-50 py-10 px-4 mt-10">
+        <div
+                class="w-full max-w-screen-sm bg-zinc-900/70 p-8 rounded-2xl shadow-2xl text-white space-y-6 overflow-y-auto max-h-[90vh]">
 
-    <div class="mt-4 text-start">
-        <a href="{% url 'cliente_view' %}"
-            class="inline-flex items-center gap-2 bg-cyan-600 hover:bg-cyan-950 text-white font-bold px-6 py-2 rounded-full transition">
-            <i class="fas fa-arrow-left"></i> Volver
-        </a>
-    </div>
+                <div class="mt-2 text-start">
+                        <a href="{% url 'cliente_view' %}"
+                                class="inline-flex items-center gap-2 bg-cyan-600 hover:bg-cyan-950 text-white font-bold px-6 py-2 rounded-full transition">
+                                <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                </div>
 
-    {% if vehiculo %}
-    {% with vehiculo as v %}
-    {% if v.url_vehiculo %}
-    <div class="flex justify-center">
-        <img src="{% static v.url_vehiculo %}" alt="{{ v.marca_nombre }} {{ v.modelo_nombre }}"
-            class="rounded-xl shadow-lg max-w-md w-full h-60 object-cover" />
-    </div>
-    {% else %}
-    <p>Este vehículo no tiene imagen disponible.</p>
-    {% endif %}
+                {% if vehiculo %}
+                {% with vehiculo as v %}
+                {% if v.url_vehiculo %}
+                <div class="flex justify-center">
+                        <img src="{% static v.url_vehiculo %}" alt="{{ v.marca_nombre }} {{ v.modelo_nombre }}"
+                                class="rounded-xl shadow-lg max-w-md w-full h-60 object-cover" />
+                </div>
+                {% else %}
+                <p>Este vehículo no tiene imagen disponible.</p>
+                {% endif %}
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
-        <div class="space-y-2">
-            <p><i class="fas fa-car text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Marca:</span> {{ v.marca_nombre }}</p>
-            <p><i class="fas fa-car-side text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Modelo:</span> {{ v.modelo_nombre }}</p>
-            <p><i class="fas fa-calendar-alt text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Año:</span> {{ v.anio }}</p>
-            <p><i class="fas fa-key text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">VIN:</span> {{ v.vin }}</p>
-            <p><i class="fas fa-cogs text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Motor:</span> {{ v.motor }}</p>
-            <p><i class="fas fa-id-card text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Placa:</span> {{ v.placa }}</p>
-            <p><i class="fas fa-circle text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Estado:</span> {{ v.estado }}</p>
-            <p><i class="fas fa-circle text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Ultimo Mantenimiento:</span> {{ v.ultimo_mantenimiento }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+                        <div class="space-y-2">
+                                <p><i class="fas fa-car text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Marca:</span> {{ v.marca_nombre }}
+                                </p>
+                                <p><i class="fas fa-car-side text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Modelo:</span> {{ v.modelo_nombre }}
+                                </p>
+                                <p><i class="fas fa-calendar-alt text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Año:</span> {{ v.anio }}</p>
+                                <p><i class="fas fa-key text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">VIN:</span> {{ v.vin }}</p>
+                                <p><i class="fas fa-cogs text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Motor:</span> {{ v.motor }}</p>
+                                <p><i class="fas fa-id-card text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Placa:</span> {{ v.placa }}</p>
+                                <p><i class="fas fa-circle text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Estado:</span> {{ v.estado }}</p>
+                                <p><i class="fas fa-circle text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Ultimo Mantenimiento:</span>
+                                        {{ v.ultimo_mantenimiento }}</p>
+                        </div>
+
+                        <div class="space-y-2">
+                                <p><i class="fas fa-tag text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Tipo:</span> {{ v.tipo_nombre }}</p>
+                                <p><i class="fas fa-info-circle text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Descripción del Tipo:</span>
+                                        {{ v.tipo_descripcion }}</p>
+                                <p><i class="fas fa-road text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Uso:</span> {{ v.uso_descripcion }}
+                                </p>
+                                <p><i class="fas fa-money-bill-wave text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Precio de Venta:</span> L.
+                                        {{ v.precio_de_venta }}</p>
+                                <p><i class="fas fa-hand-holding-usd text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Precio de Alquiler:</span> L.
+                                        {{ v.precio_de_alquiler }}</p>
+                                <p><i class="fas fa-gas-pump text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Combustible:</span>
+                                        {{ v.tipo_de_combustible }}</p>
+                                <p><i class="fas fa-gas-pump text-cyan-300 w-5 inline-block"></i> <span
+                                                class="font-semibold text-cyan-300">Kilometraje Actual:</span>
+                                        {{ v.kilometraje }}</p>
+                        </div>
+                </div>
+
+                <!--  Botón: Marcar Auto -->
+                {% if ya_marcado %}
+                <a href="{% url 'desmarcar_vehiculo' id_vehiculo=v.id_vehiculo %}"
+                        class="inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+                        Quitar de marcados
+                </a>
+                {% else %}
+                <a href="{% url 'marcar_vehiculo' id_vehiculo=v.id_vehiculo %}"
+                        class="inline-block bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700 transition">
+                        Marcar vehículo
+                </a>
+                {% endif %}
+
+                {% endwith %}
+                {% else %}
+                <p class="text-center text-sm text-gray-400">No se encontró ningún vehículo para mostrar.</p>
+                {% endif %}
+
         </div>
-
-        <div class="space-y-2">
-            <p><i class="fas fa-tag text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Tipo:</span> {{ v.tipo_nombre }}</p>
-            <p><i class="fas fa-info-circle text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Descripción del Tipo:</span> {{ v.tipo_descripcion }}</p>
-            <p><i class="fas fa-road text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Uso:</span> {{ v.uso_descripcion }}</p>
-            <p><i class="fas fa-money-bill-wave text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Precio de Venta:</span> L. {{ v.precio_de_venta }}</p>
-            <p><i class="fas fa-hand-holding-usd text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Precio de Alquiler:</span> L. {{ v.precio_de_alquiler }}</p>
-            <p><i class="fas fa-gas-pump text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Combustible:</span> {{ v.tipo_de_combustible }}</p>
-            <p><i class="fas fa-gas-pump text-cyan-300 w-5 inline-block"></i> <span
-                    class="font-semibold text-cyan-300">Kilometraje Actual:</span> {{ v.kilometraje }}</p>
-        </div>
-    </div>
-
-    <!--  Botón: Marcar Auto -->
-    {% if ya_marcado %}
-    <a href="{% url 'desmarcar_vehiculo' id_vehiculo=v.id_vehiculo %}"
-        class="inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
-        Quitar de marcados
-    </a>
-    {% else %}
-    <a href="{% url 'marcar_vehiculo' id_vehiculo=v.id_vehiculo %}"
-        class="inline-block bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700 transition">
-        Marcar vehículo
-    </a>
-    {% endif %}
-
-    {% endwith %}
-    {% else %}
-    <p class="text-center text-sm text-gray-400">No se encontró ningún vehículo para mostrar.</p>
-    {% endif %}
-
 </div>
+
 {% endblock %}

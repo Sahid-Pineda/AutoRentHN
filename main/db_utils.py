@@ -1,4 +1,5 @@
 import pyodbc #Permite conectar a bases de datos compatibles con ODBC, como SQL Server.
+from contextlib import contextmanager
 
 # Modulo para manejar las conexiones y consultas a la base de datos.
 # Define una función para obtener la conexión a la base de datos.
@@ -12,26 +13,99 @@ def get_db_connection():
     )
     return pyodbc.connect(conn_str)
 
-# Define una función para ejecutar consultas SQL.
-def execute_query(query, params=None):
-    conn = get_db_connection() # Obtiene la conexión a la base de datos.
-    cursor = conn.cursor() # Crea un cursor para interactuar con la base de datos.
+def ejecutar_query(query, params=None, conn=None, cursor=None):
+    close_conn = False
+    if not conn or not cursor:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        close_conn = True
+
     try:
-        if params:
-            cursor.execute(query, params) 
-        else:
-            cursor.execute(query)
+        cursor.execute(query, params) if params else cursor.execute(query)
         if query.strip().upper().startswith("SELECT"):
             return cursor.fetchall()
         conn.commit()
         return cursor.execute("SELECT @@IDENTITY").fetchone()[0]
     except pyodbc.Error as e:
         print(f"Error en la consulta: {e}")
+        if close_conn:
+            conn.rollback()
+        raise
+    finally:
+        if close_conn:
+            cursor.close()
+            conn.close()
+
+@contextmanager # Decorador que convierte una función en un context manager, es decir, en algo que puedes usar con with
+def db_transaction():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        yield conn, cursor
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Rollback por error: {e}")
         raise
     finally:
         cursor.close()
         conn.close()
 
+def ejecutar_insert_retorna_id(query, params=None, conn=None, cursor=None):
+    close_conn = False
+    if not conn or not cursor:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        close_conn = True
+
+    try:
+        query_final = query.strip() + "; SELECT CAST(SCOPE_IDENTITY() AS INT);"
+        print("Query ejecutada:", query_final)
+        print("Con params:", params)
+
+        if params:
+            cursor.execute(query_final, params)
+        else:
+            cursor.execute(query_final)
+
+        cursor.nextset()
+
+        result = cursor.fetchone()
+
+        if result and result[0] is not None:
+            inserted_id = result[0]
+            if close_conn:
+                conn.commit()
+            return int(inserted_id)
+        else:
+            raise Exception("No se pudo obtener el ID generado con SCOPE_IDENTITY().")
+
+    except pyodbc.Error as e:
+        print(f"Error al insertar y obtener ID: {e}")
+        if close_conn:
+            conn.rollback()
+        raise
+    finally:
+        if close_conn:
+            cursor.close()
+            conn.close()
+
+def consultar_una_fila_dict(query, params=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, params)
+
+    columnas = [columna[0].lower() for columna in cursor.description]
+    fila = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if fila:
+        return dict(zip(columnas, fila))
+    else:
+        return None
+    
 def consultar_todas_filas_dict(query, params=None):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -52,70 +126,3 @@ def consultar_todas_filas_dict(query, params=None):
     cursor.close()
     conn.close()
     return resultados
-
-def consultar_una_fila_dict(query, params=None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(query, params)
-
-    columnas = [columna[0].lower() for columna in cursor.description]
-    fila = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
-    if fila:
-        return dict(zip(columnas, fila))
-    else:
-        return None
-
-
-def execute_insert(query, params=None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        if params:
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-        conn.commit()
-    except pyodbc.Error as e:
-        print(f"Error al insertar: {e}")
-        raise
-    finally:
-        cursor.close()
-        conn.close()
-
-# Define una función para insertar datos y obtener el ID del registro insertado.
-def execute_insert_returning_id(query, params=None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        query_final = query.strip() + "; SELECT CAST(SCOPE_IDENTITY() AS INT);"
-        print("Query ejecutada:", query_final)
-        print("Con params:", params)
-       
-        if params:
-            cursor.execute(query_final, params)
-        else:
-            cursor.execute(query_final)
-
-        cursor.nextset()
-            
-        result = cursor.fetchone()
-
-        if result and result[0] is not None:
-            inserted_id = result[0]
-            print("ID INSERTADO:", inserted_id)
-            conn.commit()
-            return int(inserted_id)
-        else:
-            raise Exception("No se pudo obtener el ID generado con SCOPE_IDENTITY().")
-        
-    except pyodbc.Error as e:
-        print(f"Error al insertar y obtener ID: {e}")
-        raise
-    finally:
-        cursor.close()
-        conn.close()
-

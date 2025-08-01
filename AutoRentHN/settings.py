@@ -84,8 +84,14 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '1433',
         'OPTIONS': {          
+            'driver': 'ODBC Driver 17 for SQL Server',
             'extra_params': 'MARS_Connection=Yes', #Ejecutar varios SELECT, INSERT, UPDATE, etc., sin cerrar el anterior.
+            'unicode_results': True, # Caracteres Especiales
+            'host_is_server': True, # Evita problemas de conexión
+            'use_legacy_datetime': False,  
+            'extra_params': 'MARS_Connection=Yes;client_encoding=UTF-8',
         },
+        'TIME_ZONE': 'America/Tegucigalpa',
     }
 }
 

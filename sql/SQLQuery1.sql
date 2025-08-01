@@ -79,7 +79,7 @@ WHERE u.Correo = 'diego@example.com';
 
 SELECT id_Usuario, Correo, Contrasenia, Rol_id FROM Usuario WHERE Correo = 'diego@example.com';
 
-SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS año, 
+SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio AS aï¿½o, 
            tv.descripcion AS tipo_descripcion, uv.descripcion AS uso_descripcion,
            v.PrecioAlquiler, v.Estado
     FROM Vehiculo v
@@ -92,7 +92,7 @@ SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio
 INSERT INTO Vehiculo VALUES(7, 2018, '3G1BE6SM7JS601472', '1.5L I4 Turbo', 'HNX-4127', 1, 310000.00, 950.00, 1, 'Usado', 'Gasolina', 1, 1, 1),
 (4, 2019, '3HGGK5H57KM701893', '1.5L I4', 'HNP-2211', 1, 330000.00, 0, 2, 'Usado', 'Gasolina', 2, 2, 1),
 (8, 2022, '1G1FB1RX9N0104733', '2.3L EcoBoost', 'HNR-1189', 1, 870000.00, 0, 1, 'Nuevo', 'Gasolina', 2, 1, 1),
-(2, 2021, '3TMCZ5AN5MM374185', '3.5L V6', 'HNT-7854', 1, 790000.00, 2500.00, 3, 'Nuevo', 'Diésel', 2, 2, 1),
+(2, 2021, '3TMCZ5AN5MM374185', '3.5L V6', 'HNT-7854', 1, 790000.00, 2500.00, 3, 'Nuevo', 'Diï¿½sel', 2, 2, 1),
 (3, 2017, '19XFC2F5XHE045379', '1.5L I4 Turbo', 'HNM-6348', 1, 235000.00, 850.00, 1, 'Usado', 'Gasolina', 2, 2, 1);
 
 --SELECT  v.id_Vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, v.Anio AS anio,
@@ -122,7 +122,7 @@ SELECT v.id_vehiculo, ma.nombre AS marca_nombre, m.nombre AS modelo_nombre, Anio
 	WHERE Disponibilidad = 1
 GO
 
---¿Cruce de datos?
+--ï¿½Cruce de datos?
 --CREATE OR ALTER VIEW VistaVehiculosDetallados AS 
 --SELECT 
 --    v.id_vehiculo,
