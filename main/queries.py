@@ -72,16 +72,16 @@ QUERIES = {
  
     # Consultar para Contrato
     'insert_contrato': """
-        INSERT INTO Contrato (Vendedor_id, Cliente_id, Vehiculo_id, FechaContrato, TerminosCondiciones, GarantiaRequerida, TipoContrato, EstadoContrato, FirmaCliente)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Contrato (Vendedor_id, Cliente_id, Vehiculo_id, FechaContrato, TerminosCondiciones, GarantiaRequerida, TipoContrato, EstadoContrato, FirmaCliente, UsuarioCreacion)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,
     'insert_contrato_venta': """
         INSERT INTO ContratoVenta (id_Contrato, FechaVenta, Monto)
         VALUES (?, GETDATE(), ?)
     """,
     'insert_contrato_alquiler': """
-    INSERT INTO ContratoAlquiler (id_Contrato, FechaInicioAlquiler, FechaFinAlquiler, FechaEntregaReal, KilometrajePermitido, PoliticaCombustible, EsTardia, EsExtensible, ReporteDanios, Clausulas, RecargoIncumplimiento)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO ContratoAlquiler (id_Contrato, FechaInicioAlquiler, FechaFinAlquiler, FechaEntregaReal, KilometrajePermitido, PoliticaCombustible, EsExtensible, ReporteDanios, Clausulas, RecargoIncumplimiento)
+        VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
     """,
     
     #Consultas para Vehiculos

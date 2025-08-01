@@ -157,6 +157,7 @@ def crear_contrato_alquiler(data):
                     data['tipo_contrato'],
                     data['estado'],
                     data['firma'],
+                    data['empleado_id'], #El empleado también crea el contrato (UsuarioCreacion)
                 ),
                 conn=conn,
                 cursor=cursor
@@ -169,10 +170,10 @@ def crear_contrato_alquiler(data):
                     contrato_id,
                     data['fecha_inicio'],
                     data['fecha_fin'],
-                    data['fecha_entrega_real'],
+                    # data['fecha_entrega_real'],
                     data['kilometraje'],
                     data['politica_combustible'],
-                    data['es_tardia'],
+                    # data['es_tardia'],
                     data['es_extensible'],
                     data['reporte_danios'],
                     data['clausulas'],

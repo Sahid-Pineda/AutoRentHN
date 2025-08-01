@@ -58,14 +58,15 @@
                     <input type="date" name="fecha_fin" required
                         class="w-full mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
                 </label>
-                <label class="block">
+                <!-- Debería de ser algo modificado luego de que se crea el contrato -->
+                <!-- <label class="block">
                     <span class="text-white font-semibold flex items-center gap-2">
                         <i class="fas fa-calendar-alt text-blue-400"></i>
                         Fecha en que se entrego:
                     </span>
-                    <input type="date" name="fecha_entrega_real" required
+                    <input type="date" name="fecha_entrega_real"
                         class="w-full mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
-                </label>
+                </label> -->
 
                 <label class="block">
                     <span class="text-white font-semibold flex items-center gap-2">
@@ -97,7 +98,7 @@
                     </span>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-white font-bold">L.</span>
-                        <input type="number" name="recargo_incumplimiento" step="0.01" placeholder="0" required
+                        <input type="number" name="recargo_incumplimiento" step="0.01" placeholder="500" required
                             class="w-full pl-8 mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-lime-500 outline-none" />
                     </div>
                 </label>
@@ -109,7 +110,7 @@
                     </span>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-white font-bold">Km</span>
-                        <input type="number" name="kilometraje" step="0.00" placeholder="0" required
+                        <input type="number" name="kilometraje" step="0.00" placeholder="2000" required
                             class="w-full pl-12 mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-lime-500 outline-none" />
                     </div>
                 </label>
@@ -135,14 +136,15 @@
                         class="w-full mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-lime-500 outline-none" />
                 </label>
 
-                <label class="block">
+                <!-- Lo mismo que el caso de Fecha de Entrega Real. -->
+                <!-- <label class="block">
                     <span class="text-white font-semibold flex items-center gap-2">
                         <i class="fas fa-signature text-cyan-400"></i>
                         ¿Entrega Tardia?:
                     </span>
                     <input type="checkbox" name="es_tardia"
                         class="mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-cyan-500 outline-none" />
-                </label>
+                </label> -->
 
                 <label class="block">
                     <span class="text-white font-semibold flex items-center gap-2">
@@ -151,15 +153,15 @@
                     </span>
                     <input type="checkbox" name="es_extensible"
                         class="mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-cyan-500 outline-none" />
-
                 </label>
 
+                <!-- Debe ser requiered -->
                 <label class="block">
                     <span class="text-white font-semibold flex items-center gap-2">
                         <i class="fas fa-signature text-cyan-400"></i>
                         Firma del cliente (¿Acepta Contrato?):
                     </span>
-                    <input type="checkbox" name="firma"
+                    <input type="checkbox" name="firma" required
                         class="mt-1 p-3 rounded bg-zinc-700 text-white focus:ring-2 focus:ring-cyan-500 outline-none" />
                 </label>
             </div>
