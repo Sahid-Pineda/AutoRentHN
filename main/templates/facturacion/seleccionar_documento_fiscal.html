@@ -1,0 +1,82 @@
+{% extends 'vista_principal/base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-zinc-900 text-white p-4 md:p-8">
+    <div class="max-w-4xl mx-auto p-10">
+        <h2 class="text-3xl font-bold mb-6">Selecciona un Documento Fiscal</h2>
+
+        <!-- Formulario de filtros -->
+        <form method="GET" class="mb-6 space-y-4 md:flex md:space-y-0 md:space-x-4">
+            <div>
+                <label for="estado" class="block text-sm font-medium mb-1">Estado</label>
+                <select name="estado" id="estado" class="bg-zinc-700 text-white p-2 rounded w-full">
+                    <option value="">Todos los estados</option>
+                    {% for estado in estados_disponibles %}
+                    <option value="{{ estado }}" {% if estado == estado_seleccionado %}selected{% endif %}>{{ estado }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="tipo" class="block text-sm font-medium mb-1">Tipo de Contrato</label>
+                <select name="tipo" id="tipo" class="bg-zinc-700 text-white p-2 rounded w-full">
+                    <option value="">Todos los tipos</option>
+                    {% for tipo in tipos_disponibles %}
+                    <option value="{{ tipo }}" {% if tipo == tipo_seleccionado %}selected{% endif %}>{{ tipo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="cliente" class="block text-sm font-medium mb-1">Cliente</label>
+                <input type="text" name="cliente" id="cliente" value="{{ cliente_buscado|default_if_none:'' }}"
+                    class="bg-zinc-700 text-white p-2 rounded w-full" placeholder="Buscar por nombre">
+            </div>
+            <div class="flex items-end">
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition">
+                    Filtrar
+                </button>
+            </div>
+        </form>
+
+        {% if documentos %}
+        <div class="overflow-x-auto rounded-lg border border-zinc-700">
+            <table class="min-w-full divide-y divide-zinc-700">
+                <thead class="bg-zinc-800">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">ID Documento</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">CAI</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Número</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Fecha Emisión</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Cliente</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Tipo Contrato</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Estado</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Subtotal</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Impuesto</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-700">
+                    {% for documento in documentos %}
+                    <tr class="hover:bg-zinc-800">
+                        <td class="px-6 py-4">{{ documento.id_DocumentoFiscal }}</td>
+                        <td class="px-6 py-4">{{ documento.CAI }}</td>
+                        <td class="px-6 py-4">{{ documento.NumeroDocumentoFiscal }}</td>
+                        <td class="px-6 py-4">{{ documento.FechaEmision|date:"Y-m-d" }}</td>
+                        <td class="px-6 py-4">{{ documento.cliente_nombre }}</td>
+                        <td class="px-6 py-4">{{ documento.TipoContrato }}</td>
+                        <td class="px-6 py-4">{{ documento.Estado }}</td>
+                        <td class="px-6 py-4">{{ documento.Subtotal|floatformat:2 }}</td>
+                        <td class="px-6 py-4">{{ documento.ImpuestoTotal|floatformat:2 }}</td>
+                        <td class="px-6 py-4">{{ documento.total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-gray-400">No hay documentos fiscales disponibles para los filtros seleccionados.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

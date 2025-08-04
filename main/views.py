@@ -3,7 +3,6 @@ import logging #Registra eventos (errores, advertencias, información) dureante 
 from datetime import datetime
 from .queries import QUERIES
 from django.urls import reverse
-from django.utils import timezone
 from django.contrib import messages
 from django.conf import settings
 from .utils import login_required
@@ -16,7 +15,7 @@ from .services import authenticate_user, register_user
 from .services import traer_departamentos, traer_ciudades, traer_colonias
 from .services import traer_vehiculo_id, traer_vehiculos, traer_vehiculos_alquiler, traer_vehiculos_venta, obtener_vehiculos_marcados
 from .services import traer_contrato_venta_id, traer_contrato_alquiler_id,registrar_factura_y_pago, traer_contratos, obtener_metodos_pago, obtener_rangos_facturacion_disponibles
-from .services import obtener_siguiente_numero_factura, traer_contrato_id
+from .services import obtener_siguiente_numero_factura, traer_contrato_id, traer_documentos_fiscales
 
 # Create your views here.
 logger = logging.getLogger(__name__)
@@ -486,6 +485,25 @@ def contrato_alquiler_view(request):
     
     return manejadores.get(paso, lambda: redirect(f"{reverse('contrato_alquiler_view')}?paso=1"))()
 
+@login_required
+def seleccionar_documentos_fiscales(request):
+    estado = request.GET.get('estado', None)
+    tipo = request.GET.get('tipo', None)
+    cliente = request.GET.get('cliente', None)
+
+    documentos = traer_documentos_fiscales(estado, tipo, cliente)
+    
+    data = {
+        'documentos': documentos,
+        'estado_seleccionado': estado,
+        'tipo_seleccionado': tipo,
+        'cliente_buscado': cliente,
+        'estados_disponibles': ['Emitido', 'Anulado', 'Pendiente'],
+        'tipos_disponibles': ['Alquiler', 'Venta'],
+    }   
+    return render(request, "facturacion/seleccionar_documento_fiscal.html", data)
+
+@login_required
 def seleccionar_contratos(request):
     if request.method == "POST":
         contrato_info = request.POST.get("contrato_info")
@@ -524,7 +542,7 @@ def seleccionar_contratos(request):
     tipo = request.GET.get('tipo', None)
     cliente = request.GET.get('cliente', None)
 
-    contratos = traer_contratos(estado, tipo, cliente)  # Esta función debería traer todos los contratos disponibles
+    contratos = traer_contratos(estado, tipo, cliente)
     logger.debug(f"Contratos encontrados: {contratos}")
     data = {
         'contratos': contratos,
@@ -536,6 +554,7 @@ def seleccionar_contratos(request):
     }   
     return render(request, "facturacion/seleccionar_contrato.html", data)
 
+@login_required
 def facturacion_venta(request):
     context = {
         'factura': {
@@ -744,6 +763,7 @@ def facturacion_venta(request):
         messages.error(request, "Error al preparar datos  facturación.")
         return redirect(reverse('seleccionar_contratos'))
 
+@login_required
 def facturacion_alquiler(request):
     context = {
         'factura': {
@@ -840,7 +860,7 @@ def facturacion_alquiler(request):
             dias_alquiler = (fecha_fin - fecha_inicio).days + 1
             subtotal = precio_diario * dias_alquiler
         else:
-            subtotal = precio_diario  # a un día si las fechas no están disponibles
+            subtotal = precio_diario
         impuesto_total = round(subtotal * 0.18, 2) if cliente.get('tipoexoneracion_id') else 0.0
         total = subtotal + impuesto_total
 
