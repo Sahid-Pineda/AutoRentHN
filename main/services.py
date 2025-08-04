@@ -10,7 +10,7 @@ from .db_utils import ejecutar_query, db_transaction, ejecutar_insert_retorna_id
 logger = logging.getLogger(__name__)
 
 def hash_password(password):
-    salt = bcrypt.gensalt()
+    salt = bcrypt.gensalt() 
     hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed.decode('utf-8')
 
@@ -357,9 +357,6 @@ def obtener_rangos_facturacion_disponibles():
     return consultar_todas_filas_dict(QUERIES['rangos_facturacion'], (tipo_documento_id,))
 
 def obtener_siguiente_numero_factura(rango):
-    """
-    Obtiene el siguiente número de factura disponible para el rango dado.
-    """
     try:
         # Consultar el máximo NumeroDocumentoFiscal
         result = consultar_una_fila_dict(QUERIES['obtener_ultimo_numero_factura'], (rango['id_RangoAutorizado'],))
@@ -388,3 +385,25 @@ def obtener_siguiente_numero_factura(rango):
     except Exception as e:
         logger.error(f"Error al obtener el siguiente número de factura: {str(e)}")
         return None
+    
+def traer_documentos_fiscales(estado=None, tipo=None, cliente=None):
+    datos = []
+    if estado:
+        datos.append(estado)
+        datos.append(estado)
+    else:
+        datos.append(None)
+        datos.append(None)
+    if tipo:
+        datos.append(tipo)
+        datos.append(tipo)
+    else:
+        datos.append(None)
+        datos.append(None)
+    if cliente:
+        datos.append(cliente)
+        datos.append(f'%{cliente}%')
+    else:
+        datos.append(None)
+        datos.append(None)
+    return consultar_todas_filas_dict(QUERIES['documentos_fiscales'], datos)
