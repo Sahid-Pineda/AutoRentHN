@@ -64,10 +64,11 @@ INSERT INTO MetodoPago (Nombre) VALUES
 ('Transferencia Bancaria');
 GO
 
-INSERT INTO TipoExoneracion (Descripcion) VALUES
-('Exoneración Diplomática'),
-('Exoneración por Discapacidad'),
-('Sin Exoneración');
+INSERT INTO TipoExoneracion (Codigo, Descripcion) VALUES
+('00', 'Sin Exoneración'),
+('01', 'Exoneración por Ley'),
+('02', 'Exoneración Diplomática'),
+('03', 'Exoneración por Discapacidad');
 GO
 
 INSERT INTO Pais (Nombre, Codigo_Pais) VALUES
@@ -249,6 +250,21 @@ INSERT INTO Vehiculo (Modelo_id, Anio, VIN, Motor, MatriculaPlaca, Disponibilida
 (8, '2022', '1FA6P8TH5L5123456', '2.3L EcoBoost I4 Turbo', 'FOR8642', 1, 360000.00, 250.00, 2, 'Nuevo', 'Gasolina', 2, 1, 1, 'img/vehiculos/ForMustang2022.png', 0, '2025-06-25');
 GO
 
+INSERT INTO Establecimiento (Nombre, Direccion, CodigoEstablecimiento) VALUES
+('AutoRentHN Sucursal Principal', 'Avenida Principal, Boulevard Fuerzas Armadas, Tegucigalpa', '001');
+GO
+
+INSERT INTO PuntoEmision (CodigoPuntoEmision, Descripcion, Establecimiento_id) VALUES
+('001', 'Punto Emisión Principal', 1);
+GO
+
+INSERT INTO RangoAutorizado (TipoDocumento_id, PuntoEmision_id, CAI, NumeroInicial, NumeroFinal, FechaInicio, FechaFin) VALUES
+(1, 1, 'CAI-001-2025', 1000, 1999, '2025-01-01', '2025-12-31'),
+(2, 1, 'CAI-002-2025', 2000, 2999, '2025-01-01', '2025-12-31'),
+(3, 1, 'CAI-003-2025', 3000, 3999, '2025-01-01', '2025-12-31'),
+(4, 1, 'CAI-004-2025', 4000, 4999, '2025-01-01', '2025-12-31');
+GO
+
 --Insert de un Empleado
 INSERT INTO Direccion (Descripcion, Colonia_id) VALUES
 ('Calle Principal', 1),
@@ -270,11 +286,14 @@ INSERT INTO Empleado (Horario_id, Usuario_id, Estado) VALUES
 (1, 2, 'Activo');
 GO
 
+
 SELECT * FROM Colonia;
 SELECT * FROM Direccion;
 SELECT * FROM Persona;
 SELECT * FROM Usuario;
+SELECT * FROM Cliente;
 SELECT * FROM Empleado;
+SELECT * FROM InformacionFiscal;
 
 SELECT * FROM Marca;
 SELECT * FROM Modelo;
@@ -284,7 +303,6 @@ SELECT * FROM TipoVehiculo;
 SELECT * FROM ParqueoVehiculo;
 SELECT * FROM Proveedor;
 SELECT * FROM Vehiculo;
-SELECT * FROM Cliente;
 SELECT * FROM Proveedor;
 SELECT * FROM Contrato;
 SELECT * FROM ContratoVenta;
@@ -309,10 +327,14 @@ INNER JOIN TipoVehiculo tv ON v.TipoVehiculo_id = tv.id_TipoVehiculo
 INNER JOIN UsoVehiculo uv ON v.UsoVehiculo_id = uv.id_UsoVehiculo
 WHERE uv.descripcion = 'Venta' AND Disponibilidad = 1
 
+
+
+SELECT * FROM InformacionFiscal;
 SELECT * FROM ContratoVenta;
 SELECT * FROM ContratoAlquiler;
 SELECT * FROM Contrato;
 SELECT * FROM Vehiculo;
+SELECT * FROM ContratoAlquiler WHERE id_Contrato = 1;
 
 DELETE FROM ContratoAlquiler WHERE id_Contrato = 2011;
 DELETE FROM ContratoAlquiler WHERE id_Contrato = 2012;

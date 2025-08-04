@@ -168,7 +168,18 @@
     <script src="{% static 'js/cascada_colonia.js' %}"></script>
     <script src="{% static 'js/animacion.js' %}"></script>
     {% endblock %}
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    toast.style.transition = 'opacity 0.5s ease';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500); // Elimina después de desvanecerse
+                }, 3000); // Desvanece después de 3 segundos
+            });
+        });
+    </script>
 </body>
 
 </html>

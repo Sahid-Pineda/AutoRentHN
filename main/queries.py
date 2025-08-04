@@ -30,13 +30,23 @@ QUERIES = {
     "get_all_clients": "SELECT * FROM Cliente",
     "get_cliente_by_id": """
     SELECT 
-    p.PrimerNombre AS Nombre, 
-    p.PrimerApellido AS Apellido,
-    c.id_Cliente AS id_cliente
+        c.id_Cliente AS cliente_id,
+        p.PrimerNombre AS Nombre, 
+        p.PrimerApellido AS Apellido,
+        p.SegundoNombre,
+        p.SegundoApellido,
+        p.Telefono,
+        p.Sexo,
+        u.Correo,
+        c.FechaRegistro,
+        i.RTN,
+        i.TipoContribuyente,
+        i.TipoExoneracion_id AS tipoexoneracion_id
     FROM Cliente c
     INNER JOIN Usuario u ON c.Usuario_id = u.id_Usuario
     INNER JOIN Persona p ON u.Persona_id = p.id_Persona
-    WHERE c.id_Cliente = ?;
+    LEFT JOIN InformacionFiscal i ON i.Persona_id = p.id_Persona
+    WHERE c.id_Cliente = ?
     """,
     "get_cliente_by_correo": """
     SELECT 
@@ -54,7 +64,10 @@ QUERIES = {
     WHERE u.Correo = ?;
     """,
 
-    "insert_tipo_exoneracion": "INSERT INTO TipoExoneracion (Descripcion) VALUES (?)",
+    'insert_info_fiscal': """
+    INSERT INTO InformacionFiscal(RTN, TipoContribuyente, Persona_id, TipoExoneracion_id) VALUES
+    (?,?,?,?)
+    """,
     'get_tipo_exoneracion_by_id': "SELECT TipoExoneracion_id FROM TipoExoneracion WHERE TipoExoneracion_id = ?",
     'get_all_tipo_exoneracion': "SELECT * FROM TipoExoneracion",
 
@@ -71,6 +84,39 @@ QUERIES = {
     """,
  
     # Consultar para Contrato
+    'contrato_tipo':
+    """
+    SELECT 
+        c.id_Contrato AS id_contrato,
+        c.TipoContrato AS tipo_contrato,
+        c.EstadoContrato AS estado,
+        c.FechaContrato AS fecha,
+        cl.id_Cliente AS cliente_id,
+        p.PrimerNombre + ' ' + p.PrimerApellido AS cliente_nombre,
+        e.id_Empleado AS empleado_id,
+        pe.PrimerNombre + ' ' + pe.PrimerApellido AS empleado_nombre,
+        v.id_Vehiculo AS vehiculo_id,
+        ma.Nombre AS marca_nombre,
+        m.Nombre AS modelo_nombre,
+    CASE 
+        WHEN c.TipoContrato = 'Venta' THEN cv.Monto
+        WHEN c.TipoContrato = 'Alquiler' THEN v.PrecioAlquiler
+    END AS monto
+    FROM Contrato c
+    INNER JOIN Cliente cl ON c.Cliente_id = cl.id_Cliente
+    INNER JOIN Usuario u ON cl.Usuario_id = u.id_Usuario
+    INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+    INNER JOIN Empleado e ON c.Vendedor_id = e.id_Empleado
+    INNER JOIN Usuario ue ON e.Usuario_id = ue.id_Usuario
+    INNER JOIN Persona pe ON ue.Persona_id = pe.id_Persona
+    INNER JOIN Vehiculo v ON c.Vehiculo_id = v.id_Vehiculo
+    INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    LEFT JOIN ContratoVenta cv ON c.id_Contrato = cv.id_Contrato AND c.TipoContrato = 'Venta'
+    LEFT JOIN ContratoAlquiler ca ON c.id_Contrato = ca.id_Contrato AND c.TipoContrato = 'Alquiler'
+    WHERE c.id_Contrato = ?
+    """,
+
     'insert_contrato': """
         INSERT INTO Contrato (Vendedor_id, Cliente_id, Vehiculo_id, FechaContrato, TerminosCondiciones, GarantiaRequerida, TipoContrato, EstadoContrato, FirmaCliente)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -82,6 +128,143 @@ QUERIES = {
     'insert_contrato_alquiler': """
     INSERT INTO ContratoAlquiler (id_Contrato, FechaInicioAlquiler, FechaFinAlquiler, FechaEntregaReal, KilometrajePermitido, PoliticaCombustible, EsTardia, EsExtensible, ReporteDanios, Clausulas, RecargoIncumplimiento)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """,
+    'metodos_pago':
+    """
+    SELECT id_MetodoPago, Nombre FROM MetodoPago
+    """,
+    'rangos_facturacion':
+    """
+    SELECT * FROM RangoAutorizado
+    """,
+    'get_contrato_venta_id': """
+    SELECT 
+        c.id_Contrato AS id_contrato,
+        cl.id_Cliente AS cliente_id,
+        c.Vendedor_id AS empleado_id,
+        v.id_Vehiculo AS vehiculo_id,
+        c.FechaContrato AS fecha,
+        c.TerminosCondiciones,
+        c.GarantiaRequerida,
+        c.TipoContrato AS tipo_contrato,
+        c.EstadoContrato,
+        c.FirmaCliente,
+        p.PrimerNombre + ' ' + p.PrimerApellido AS cliente_nombre,
+        pe.PrimerNombre + ' ' + pe.PrimerApellido AS empleado_nombre,
+        ma.Nombre AS vehiculo_marca,
+        m.Nombre AS vehiculo_modelo,
+        cv.FechaVenta AS fechaventa,  -- Agregado alias para consistencia
+        cv.Monto
+    FROM Contrato c
+    INNER JOIN Cliente cl ON c.Cliente_id = cl.id_Cliente
+    INNER JOIN Usuario u ON cl.Usuario_id = u.id_Usuario
+    INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+    INNER JOIN Empleado e ON c.Vendedor_id = e.id_Empleado
+    INNER JOIN Usuario ue ON e.Usuario_id = ue.id_Usuario
+    INNER JOIN Persona pe ON ue.Persona_id = pe.id_Persona
+    INNER JOIN Vehiculo v ON c.Vehiculo_id = v.id_Vehiculo
+    INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    LEFT JOIN ContratoVenta cv ON c.id_Contrato = cv.id_Contrato
+    WHERE c.id_Contrato = ? AND c.TipoContrato = 'Venta'
+    """,
+    'get_contrato_alquiler_id': """
+    SELECT 
+        c.id_Contrato AS id_contrato,
+        cl.id_Cliente AS cliente_id,
+        c.Vendedor_id AS empleado_id,
+        v.id_Vehiculo AS vehiculo_id,
+        c.TipoContrato AS tipo_contrato,
+        c.FechaContrato AS fecha,
+        c.EstadoContrato AS estado,
+        c.FirmaCliente AS firma,
+        p.PrimerNombre + ' ' + p.PrimerApellido AS cliente_nombre,
+        pe.PrimerNombre + ' ' + pe.PrimerApellido AS empleado_nombre,
+        ma.Nombre AS marca_nombre,
+        m.Nombre AS modelo_nombre,
+        v.Anio AS anio,
+        v.VIN AS vin,
+        v.PrecioAlquiler AS precio_de_alquiler,
+        ca.FechaInicioAlquiler AS fechainicioalquiler,
+        ca.FechaFinAlquiler AS fechafinalquiler,
+        ca.FechaEntregaReal AS fechaentrega,
+        ca.KilometrajePermitido AS kilometraje,
+        ca.PoliticaCombustible AS politicacombustible,
+        ca.EsTardia AS estardia,
+        ca.EsExtensible AS esextensible,
+        ca.ReporteDanios AS reportedanios,
+        ca.Clausulas AS clausulas,
+        ca.RecargoIncumplimiento AS recargoincumplimiento
+    FROM Contrato c
+    INNER JOIN Cliente cl ON c.Cliente_id = cl.id_Cliente
+    INNER JOIN Usuario u ON cl.Usuario_id = u.id_Usuario
+    INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+    INNER JOIN Empleado e ON c.Vendedor_id = e.id_Empleado
+    INNER JOIN Usuario ue ON e.Usuario_id = ue.id_Usuario
+    INNER JOIN Persona pe ON ue.Persona_id = pe.id_Persona
+    INNER JOIN Vehiculo v ON c.Vehiculo_id = v.id_Vehiculo
+    INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    LEFT JOIN ContratoAlquiler ca ON c.id_Contrato = ca.id_Contrato
+    WHERE c.id_Contrato = ? AND c.TipoContrato = 'Alquiler'
+    """,
+
+    'get_contratos': """
+    SELECT 
+        c.id_Contrato AS id_contrato,
+        p.PrimerNombre + ' ' + p.PrimerApellido AS cliente_nombre,
+        ma.Nombre AS vehiculo_marca,
+        m.Nombre AS vehiculo_modelo,
+        c.TipoContrato AS tipo_contrato,
+        c.FechaContrato AS fecha,
+        cv.FechaVenta,
+        cv.Monto,
+        ca.FechaInicioAlquiler,
+        ca.FechaFinAlquiler,
+        c.EstadoContrato
+    FROM Contrato c
+    INNER JOIN Cliente cl ON c.Cliente_id = cl.id_Cliente
+    INNER JOIN Usuario u ON cl.Usuario_id = u.id_Usuario
+    INNER JOIN Persona p ON u.Persona_id = p.id_Persona
+    INNER JOIN Vehiculo v ON c.Vehiculo_id = v.id_Vehiculo
+    INNER JOIN Modelo m ON v.Modelo_id = m.id_Modelo
+    INNER JOIN Marca ma ON m.Marca_id = ma.id_Marca
+    LEFT JOIN ContratoVenta cv ON c.id_Contrato = cv.id_Contrato
+    LEFT JOIN ContratoAlquiler ca ON c.id_Contrato = ca.id_Contrato
+    WHERE (c.EstadoContrato = ? OR ? = '')
+        AND (c.TipoContrato = ? OR ? = '')
+        AND ((p.PrimerNombre + ' ' + p.PrimerApellido LIKE '%' + ? + '%') OR ? = '')
+    ORDER BY c.FechaContrato DESC
+    """,
+    'insert_documento_fiscal': 
+    '''
+    INSERT INTO DocumentoFiscal (Contrato_id, CAI, RangoAutorizado_id, NumeroDocumentoFiscal,
+    EsExonerado, Subtotal, ImpuestoTotal, Total, Estado)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''',
+
+    'insert_detalle_documento_fiscal': 
+    '''
+    INSERT INTO DetalleDocumentoFiscal (DocumentoFiscal_id, Vehiculo_id, Descripcion, Cantidad, PrecioUnitario, Impuesto, TotalLinea)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''',
+
+    'insert_pago_documento_fiscal': 
+    '''
+    INSERT INTO PagoDocumentoFiscal (DocumentoFiscal_id, MetodoPago_id, Monto, Referencia)
+    VALUES (?, ?, ?, ?)
+    ''',
+
+    'rangos_facturacion': """
+    SELECT id_RangoAutorizado, TipoDocumento_id, PuntoEmision_id, CAI, NumeroInicial, NumeroFinal, FechaInicio, FechaFin
+    FROM RangoAutorizado
+    WHERE TipoDocumento_id = ? AND FechaInicio <= GETDATE() AND FechaFin >= GETDATE()
+    """,
+
+    'obtener_ultimo_numero_factura': """
+    SELECT MAX(NumeroDocumentoFiscal) as max_numero
+    FROM DocumentoFiscal
+    WHERE RangoAutorizado_id = ?
     """,
     
     #Consultas para Vehiculos
@@ -134,6 +317,13 @@ QUERIES = {
 
     "update_disponibilidad": """
     UPDATE Vehiculo SET Disponibilidad = 0 WHERE id_Vehiculo = ?;
+    """,
+    "update_estado": """
+    UPDATE Contrato
+    SET EstadoContrato = ?,
+    UsuarioModificacion = ?,
+    FechaModificacion = GETDATE()
+    WHERE id_Contrato = ?
     """,
 
     "get_vehicle_by_id": """

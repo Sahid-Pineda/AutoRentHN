@@ -1,0 +1,289 @@
+{% extends 'vista_principal/base.html' %}
+
+{% block content %}
+{% load static %}
+<div class="min-h-screen bg-zinc-900 text-white p-4 md:p-8">
+    <!-- Mostrar mensajes de error -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="bg-red-600 text-white p-3 rounded {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="max-w-4xl mx-auto bg-zinc-800 rounded-lg shadow-lg overflow-hidden">
+        <form method="POST" class="p-6">
+            {% csrf_token %}
+
+            <!-- Encabezado -->
+            <div
+                class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-zinc-700 pb-4 mb-6">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-2xl font-bold">Concesionaria AutoRentHN</h1>
+                    <p class="text-sm text-zinc-400">RTN: 08011999012345</p>
+                    <p class="text-sm text-zinc-400">Tegucigalpa, Honduras</p>
+                </div>
+
+                <div class="bg-zinc-700 p-4 rounded-lg">
+                    <h2 class="text-xl font-semibold text-center">FACTURA DE ALQUILER</h2>
+                    <div class="grid grid-cols-2 gap-2 mt-2 text-sm">
+                        <span class="text-zinc-400">No. Factura:</span>
+                        <span>{{ factura.numero_documento_fiscal }}</span>
+                        <input type="hidden" name="numero_documento_fiscal"
+                            value="{{ factura.numero_documento_fiscal }}">
+
+                        <span class="text-zinc-400">CAI:</span>
+                        <span>{{ factura.cai }}</span>
+                        <input type="hidden" name="cai" value="{{ factura.cai }}">
+
+                        <span class="text-zinc-400">Fecha:</span>
+                        <span>{{ factura.contrato.fecha|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos del Cliente -->
+            <div class="mb-6 p-4 bg-zinc-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-3 flex items-center">
+                    <i class="fas fa-user mr-2 text-blue-400"></i>
+                    Datos del Cliente
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">Nombre</label>
+                        <div class="bg-zinc-600 p-2 rounded">
+                            {{ factura.cliente.nombre_completo }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">RTN/DNI</label>
+                        <div class="bg-zinc-600 p-2 rounded">
+                            {{ factura.cliente.rtn }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">Teléfono</label>
+                        <div class="bg-zinc-600 p-2 rounded">
+                            {{ factura.cliente.telefono }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">Correo</label>
+                        <div class="bg-zinc-600 p-2 rounded">
+                            {{ factura.cliente.correo }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles del Contrato -->
+            <div class="mb-6 p-4 bg-zinc-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-3 flex items-center">
+                    <i class="fas fa-file-contract mr-2 text-green-400"></i>
+                    Detalles del Contrato
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">No. Contrato</label>
+                        <div class="bg-zinc-600 p-2 rounded">{{ factura.contrato.id }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">Fecha Inicio</label>
+                        <div class="bg-zinc-600 p-2 rounded">{{ factura.contrato.fecha_inicio|date:"d/m/Y" }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">Fecha Fin</label>
+                        <div class="bg-zinc-600 p-2 rounded">{{ factura.contrato.fecha_fin|date:"d/m/Y" }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">Vendedor</label>
+                        <div class="bg-zinc-600 p-2 rounded">{{ factura.empleado.nombre_completo }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalle de la Factura -->
+            <div class="mb-6 p-4 bg-zinc-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-3 flex items-center">
+                    <i class="fas fa-list-alt mr-2 text-yellow-400"></i>
+                    Detalle de la Factura
+                </h3>
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-zinc-600">
+                            <th class="p-2 text-left">Días</th>
+                            <th class="p-2 text-left">Descripción</th>
+                            <th class="p-2 text-left">P. Diario</th>
+                            <th class="p-2 text-left">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-2 border-b border-zinc-600">
+                                <input type="number" name="cantidad" value="{{ factura.calculos.cantidad }}" min="1"
+                                    step="1" class="bg-zinc-600 p-1 rounded w-16 text-center" required>
+                            </td>
+                            <td class="p-2 border-b border-zinc-600">
+                                <input type="text" name="descripcion"
+                                    value="{{ factura.descripcion|default:'Alquiler de vehículo '}}{{ factura.vehiculo.marca }} {{ factura.vehiculo.modelo }} {{ factura.vehiculo.anio }}"
+                                    class="bg-zinc-600 p-1 rounded w-full" required>
+                            </td>
+                            <td class="p-2 border-b border-zinc-600">
+                                <input type="number" name="precio_unitario"
+                                    value="{{ factura.vehiculo.precio|floatformat:2 }}" step="0.01" min="0"
+                                    class="bg-zinc-600 p-1 rounded w-full" required>
+                            </td>
+                            <td class="p-2 border-b border-zinc-600">
+                                L. {{ factura.calculos.total_linea|default:factura.calculos.subtotal|floatformat:2 }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totales -->
+            <div class="mb-6 p-4 bg-zinc-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-3 flex items-center">
+                    <i class="fas fa-calculator mr-2 text-purple-400"></i>
+                    Totales
+                </h3>
+                <div class="flex justify-end">
+                    <table class="w-full md:w-1/2">
+                        <tr>
+                            <td class="py-1 text-right text-zinc-400">Subtotal:</td>
+                            <td class="py-1 text-right subtotal-display">
+                                L. {{ factura.calculos.subtotal|floatformat:2 }}
+                                <input type="hidden" name="subtotal" value="{{ factura.calculos.subtotal }}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-1 text-right text-zinc-400">ISV (15%):</td>
+                            <td class="py-1 text-right impuesto-display">
+                                L. {{ factura.calculos.impuesto|floatformat:2 }}
+                                <input type="hidden" name="impuesto_total" value="{{ factura.calculos.impuesto }}">
+                            </td>
+                        </tr>
+                        <tr class="border-t border-zinc-600">
+                            <td class="py-2 text-right font-semibold">Total:</td>
+                            <td class="py-2 text-right font-bold text-lg total-display">
+                                L. {{ factura.calculos.total|floatformat:2 }}
+                                <input type="hidden" name="total" value="{{ factura.calculos.total }}">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Métodos de Pago -->
+            <div class="mb-6 p-4 bg-zinc-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-3 flex items-center">
+                    <i class="fas fa-credit-card mr-2 text-red-400"></i>
+                    Métodos de Pago
+                </h3>
+                <div id="metodos-pago-container">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                        <div>
+                            <label class="block text-sm text-zinc-400 mb-1">Método</label>
+                            <select name="metodo_pago_id" class="bg-zinc-600 p-2 rounded w-full" required>
+                                <option value="">Seleccione...</option>
+                                {% for metodo in factura.pagos %}
+                                <option value="{{ metodo.id_metodopago }}">{{ metodo.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-zinc-400 mb-1">Referencia</label>
+                            <input type="text" name="referencia" class="bg-zinc-600 p-2 rounded w-full">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-zinc-400 mb-1">Monto (L.)</label>
+                            <input type="number" name="monto" step="0.01" min="0"
+                                max="{{ factura.calculos.total|floatformat:2 }}" class="bg-zinc-600 p-2 rounded w-full"
+                                required>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="agregarMetodoPago()"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">
+                    <i class="fas fa-plus mr-1"></i> Agregar otro método de pago
+                </button>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="flex justify-between mt-6">
+                <a href="{% url 'seleccionar_contratos' %}"
+                    class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded">
+                    <i class="fas fa-arrow-left mr-1"></i> Regresar
+                </a>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold">
+                    <i class="fas fa-save mr-1"></i> Guardar Factura
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function agregarMetodoPago() {
+        const container = document.getElementById("metodos-pago-container");
+        const totalFactura = parseFloat("{{ factura.calculos.total }}");
+        let totalPagos = 0;
+
+        document.querySelectorAll('input[name="monto"]').forEach(input => {
+            totalPagos += parseFloat(input.value) || 0;
+        });
+
+        if (totalPagos >= totalFactura) {
+            alert('El total de la factura ya ha sido cubierto');
+            return;
+        }
+
+        const nuevoMetodo = document.createElement('div');
+        nuevoMetodo.className = 'grid grid-cols-1 md:grid-cols-3 gap-4 mb-3 mt-3';
+        nuevoMetodo.innerHTML = `
+            <div>
+                <select name="metodo_pago_id" class="bg-zinc-600 p-2 rounded w-full">
+                    <option value="">Seleccione...</option>
+                    {% for metodo in factura.pagos %}
+                    <option value="{{ metodo.id_metodopago }}">{{ metodo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <input type="text" name="referencia" class="bg-zinc-600 p-2 rounded w-full" placeholder="Referencia">
+            </div>
+            <div class="flex items-end">
+                <input type="number" name="monto" step="0.01" min="0" max="${totalFactura - totalPagos}" 
+                       class="bg-zinc-600 p-2 rounded w-full" placeholder="Monto">
+                <button type="button" onclick="this.parentNode.parentNode.remove()" 
+                        class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(nuevoMetodo);
+    }
+
+    document.querySelector('input[name="cantidad"]').addEventListener('change', actualizarTotales);
+    document.querySelector('input[name="precio_unitario"]').addEventListener('change', actualizarTotales);
+
+    function actualizarTotales() {
+        const cantidad = parseFloat(document.querySelector('input[name="cantidad"]').value) || 0;
+        const precio = parseFloat(document.querySelector('input[name="precio_unitario"]').value) || 0;
+        const subtotal = cantidad * precio;
+        const impuesto = {% if factura.cliente.tipoexoneracion_id %} 0{% else %} subtotal * 0.15{% endif %};
+    const total = subtotal + impuesto;
+
+    document.querySelector('input[name="subtotal"]').value = subtotal.toFixed(2);
+    document.querySelector('input[name="impuesto_total"]').value = impuesto.toFixed(2);
+    document.querySelector('input[name="total"]').value = total.toFixed(2);
+
+    document.querySelector('.subtotal-display').textContent = `L. ${subtotal.toFixed(2)}`;
+    document.querySelector('.impuesto-display').textContent = `L. ${impuesto.toFixed(2)}`;
+    document.querySelector('.total-display').textContent = `L. ${total.toFixed(2)}`;
+    }
+</script>
+{% endblock %}
