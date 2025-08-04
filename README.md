@@ -8,8 +8,6 @@
 - [Requisitos Previos](#requisitos-previos)
 - [Instrucciones de Configuración](#instrucciones-de-configuración)
 - [Ejecutar el Proyecto](#ejecutar-el-proyecto)
-- [Contribuir](#contribuir)
-- [Licencia](#licencia)
 
 ## Descripción del Proyecto
 AutoRentHN está diseñado para manejar el proceso de alquiler y venta de vehículos. Incluye funcionalidades para el registro de usuarios, contratos y documentos fiscales. La aplicación utiliza Django como framework backend y se conecta a una base de datos SQL Server para el almacenamiento de datos.
