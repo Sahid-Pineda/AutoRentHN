@@ -3,6 +3,17 @@
 {% block content %}
 <div class="min-h-screen flex items-center justify-center px-4 mt-5">
     <div class="w-full max-w-2xl bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        {% if messages %}
+        <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 p-14">
+            {% for message in messages %}
+            <div
+                class="toast bg-{% if message.tags == 'success' %}green-600{% else %}red-600{% endif %} text-white p-3 rounded shadow-lg flex items-center justify-between max-w-sm">
+                {{ message }}
+                <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         <!-- Encabezado con gradiente -->
         <div class="bg-gradient-to-r from-cyan-700 to-sky-900 p-6 text-white">
             <div class="flex items-center justify-between">
@@ -33,10 +44,10 @@
                         <i class="fas fa-plus-circle"></i>
                         Crear otro contrato
                     </a>
-                    <a href="#"
+                    <a href="{% url 'seleccionar_contratos' %}"
                         class="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-500 hover:bg-gray-600 text-gray-200 rounded-lg transition duration-200">
                         <i class="fas fa-file-download"></i>
-                        Descargar contrato
+                        Ver Contrato
                     </a>
                 </div>
 
@@ -44,7 +55,7 @@
                 <div class="mt-8 p-4 bg-sky-300 rounded-lg w-full text-left">
                     <div class="flex items-start gap-3">
                         <i class="fas fa-info-circle text-blue-500 mt-1"></i>
-                        <p class="text-sm text-blue-900">
+                        <p class="text-sm text-black">
                             El contrato ha sido registrado en el sistema. Puedes revisarlo en cualquier momento
                             desde la sección de "Historial Ventas" en el menú principal.
                         </p>

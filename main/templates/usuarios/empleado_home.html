@@ -5,6 +5,18 @@
 <!-- Contenedor principal con padding para el header fixed -->
 <div class="min-h-screen md:p-8">
     <div class="max-w-7xl mx-auto">
+        {% if messages %}
+        <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 p-14">
+            {% for message in messages %}
+            <div
+                class="toast bg-{% if message.tags == 'success' %}green-600{% else %}red-600{% endif %} text-white p-3 rounded shadow-lg flex items-center justify-between max-w-sm">
+                {{ message }}
+                <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <!-- Título -->
         <div class="flex flex-col md:flex-row justify-between p-10 items-center mb-8 gap-4">
             <h2 class="text-3xl md:text-4xl font-bold text-white">Panel de Gestión</h2>
@@ -45,7 +57,8 @@
             </a>
 
             <!-- Tarjeta 3: Historial de Ventas -->
-            <a href="#" class="group">
+            <a href="{% url 'seleccionar_contratos' %}" class="group">
+
                 <div
                     class="h-full p-6 border-2 border-amber-500/20 rounded-xl bg-zinc-800/50 hover:bg-zinc-800/80 transition-all hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10">
                     <div class="text-center">
@@ -53,9 +66,8 @@
                             class="inline-flex items-center justify-center w-16 h-16 mb-4 bg-amber-500/10 rounded-full group-hover:bg-amber-500/20 transition">
                             <i class="fas fa-chart-line text-amber-400 text-2xl"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-white mb-2">Historial de Ventas</h3>
-                        <p class="text-zinc-400 group-hover:text-zinc-300 transition">Consulta ventas pasadas y
-                            estadísticas.</p>
+                        <h3 class="text-xl font-semibold text-white mb-2">Contratos</h3>
+                        <p class="text-zinc-400 group-hover:text-zinc-300 transition">Consulta contratos creados.</p>
                     </div>
                 </div>
             </a>

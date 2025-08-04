@@ -71,6 +71,7 @@ GO
 
 CREATE TABLE TipoExoneracion (
 id_TipoExoneracion INTEGER PRIMARY KEY IDENTITY(1,1),
+Codigo VARCHAR(10),
 Descripcion VARCHAR(100) NOT NULL
 );
 GO
@@ -123,7 +124,7 @@ CREATE TABLE Establecimiento (
 id_Establecimiento INTEGER PRIMARY KEY IDENTITY(1,1),
 Nombre VARCHAR(100) NOT NULL,
 Direccion TEXT NOT NULL,
-CodigoEstablecimiento VARCHAR(12)
+CodigoEstablecimiento VARCHAR(3)
 );
 GO
 
@@ -233,12 +234,15 @@ GO
 
 CREATE TABLE InformacionFiscal (
 id_InformacionFiscal INTEGER PRIMARY KEY IDENTITY(1,1),
-RTN VARCHAR(25) NOT NULL,
-TipoContribuyente VARCHAR(20),
+RTN VARCHAR(30) NOT NULL UNIQUE,
+TipoContribuyente VARCHAR(10) NOT NULL CHECK (TipoContribuyente IN ('Natural', 'Juridica')),
 FechaRegistro DATE DEFAULT GETDATE(),
 Persona_id INTEGER NOT NULL,
-FOREIGN KEY (Persona_id) REFERENCES Persona(id_Persona)
+TipoExoneracion_id INTEGER,
+FOREIGN KEY (Persona_id) REFERENCES Persona(id_Persona),
+FOREIGN KEY (TipoExoneracion_id) REFERENCES TipoExoneracion(id_TipoExoneracion)
 );
+GO
 
 CREATE TABLE Usuario (
 id_Usuario INTEGER PRIMARY KEY IDENTITY(1,1),
@@ -272,7 +276,7 @@ GO
 CREATE TABLE Empleado (
 id_Empleado INTEGER PRIMARY KEY IDENTITY(1,1),
 Horario_id INTEGER,
-Usuario_id INTEGER NOT NULL,
+Usuario_id INTEGER NOT NULL UNIQUE,
 Estado VARCHAR(100) CHECK (Estado IN ('Activo', 'Inactivo', 'Suspendido')),
 FOREIGN KEY (Horario_id) REFERENCES HorarioTrabajo(id_HorarioTrabajo),
 FOREIGN KEY (Usuario_id) REFERENCES Usuario(id_Usuario)
@@ -281,12 +285,9 @@ GO
 
 CREATE TABLE Cliente (
 id_Cliente INTEGER PRIMARY KEY IDENTITY(1,1),
-Usuario_id INTEGER NOT NULL,
-TipoExoneracion_id INTEGER,
-VehiculoSeleccionado_id INTEGER,
-FOREIGN KEY (VehiculoSeleccionado_id) REFERENCES Vehiculo(id_Vehiculo),
-FOREIGN KEY (Usuario_id) REFERENCES Usuario(id_Usuario),
-FOREIGN KEY (TipoExoneracion_id) REFERENCES TipoExoneracion(id_TipoExoneracion)
+Usuario_id INTEGER NOT NULL UNIQUE,
+FechaRegistro DATETIME DEFAULT GETDATE(),
+FOREIGN KEY (Usuario_id) REFERENCES Usuario(id_Usuario)
 );
 GO
 
@@ -393,9 +394,10 @@ CREATE TABLE PagoDocumentoFiscal (
 id_PagoDocumentoFiscal INTEGER PRIMARY KEY IDENTITY(1,1),
 DocumentoFiscal_id INTEGER NOT NULL,
 MetodoPago_id INTEGER NOT NULL,
-Monto DECIMAL(13,2) NOT NULL,
+Monto DECIMAL(13,2) NOT NULL CHECK (Monto > 0),
 Referencia VARCHAR(50),
+FechaPago DATETIME DEFAULT GETDATE(),
 FOREIGN KEY (DocumentoFiscal_id) REFERENCES DocumentoFiscal(id_DocumentoFiscal),
 FOREIGN KEY (MetodoPago_id) REFERENCES MetodoPago(id_MetodoPago)
 );
-GO
+GO 

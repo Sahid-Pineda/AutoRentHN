@@ -11,6 +11,8 @@ from .views import auto_view
 from .views import contrato_venta_view, contrato_alquiler_view, contrato_venta_view, contrato_alquiler_view
 from .views import marcar_vehiculo, desmarcar_vehiculo
 from .views import contrato_venta_view, contrato_alquiler_view, contrato_creado_venta, contrato_creado_alquiler
+from .views import facturacion_venta, factura_venta_creada, facturacion_alquiler
+from .views import seleccionar_contratos
 
 
 urlpatterns = [
@@ -30,6 +32,16 @@ urlpatterns = [
     path('contrato-alquiler/', contrato_alquiler_view, name='contrato_alquiler_view'),
     path('contrato-exito-alquiler/', contrato_creado_alquiler, name='contrato_exito_alquiler'),
     
+    
+    path('facturacion/Venta/', facturacion_venta, name='factura_venta'),
+    path('facturacion-venta-exito/', factura_venta_creada, name='factura_venta_exito'),
+    
+    path('facturacion/Alquiler/', facturacion_alquiler, name='factura_alquiler'),
+
+    #path('facturacion-alquiler-exito/', factura_alquiler_creada, name='factura_alquiler_exito'),
+    #path('facturacion-venta/seleccionar/', seleccionar_contratos, name='seleccionar_contrato_factura'),
+
+    path('seleccionar-contratos/', seleccionar_contratos, name='seleccionar_contratos'),
 
     path('auto/<int:id_vehiculo>/', auto_view, name='auto'),
     path("marcar/<int:id_vehiculo>/", marcar_vehiculo, name="marcar_vehiculo"),

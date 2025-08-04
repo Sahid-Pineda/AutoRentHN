@@ -1,60 +1,149 @@
-{% extends 'vista_principal/base.html' %}
+POSIBLE FLUJO DE VISTAS EN DJANGO
 
-{% block content%}
-{% load static%}
-<div class="min-h-screen bg-gray-900 text-white p-20">
-    <h2 class="text-3xl font-bold text-center mb-6">Selecciona un vehículo</h2>
+facturar_contrato(request, contrato_id) → recoge contrato y cliente
 
-    <form method="POST">
-        {% for vehiculo in vehiculos %}
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-                class="bg-gray-800 p-5 rounded-2xl shadow-lg hover:shadow-2xl transition relative border border-gray-700">
+Carga info fiscal (rtn, exoneración), catálogo, totales.
 
-                {% if vehiculo.url_vehiculo %}
-                <div class="flex justify-center mb-4">
-                    <img src="{% static vehiculo.url_vehiculo %}" alt="Imagen del vehículo"
-                        class="rounded-xl shadow-md w-full max-h-48 object-cover object-center">
-                </div>
-                {% else %}
-                <p class="text-center text-sm text-gray-400 mb-4">Este vehículo no tiene imagen disponible.</p>
-                {% endif %}
+Vista de confirmación → confirmar_factura()
 
-                <h3 class="text-xl font-semibold mb-2 flex items-center">
-                    <i class="fas fa-car-side text-yellow-400 mr-2"></i>
-                    {{ vehiculo.vehiculo_id }} {{ vehiculo.marca_nombre }} {{ vehiculo.modelo_nombre }}
-                </h3>
+Inserta documento y detalle, actualiza contrato.
 
-                <p><i class="fas fa-calendar-alt text-blue-300 mr-2"></i> Año: {{ vehiculo.anio }}</p>
-                <p><i class="fas fa-money-bill-wave text-green-400 mr-2"></i> Precio: L. {{ vehiculo.PrecioVenta }}</p>
-                <p><i class="fas fa-cogs text-purple-300 mr-2"></i> Descripción: {{ vehiculo.tipo_descripcion }}</p>
-                <p><i class="fas fa-tachometer-alt text-red-300 mr-2"></i> Estado: {{ vehiculo.Estado }}</p>
+Redirecciona a exito_factura() o descarga PDF.
 
-                <input type="hidden" name="vehiculo_id" value="{{ vehiculo.vehiculo_id }}">
+INSERT INTO TipoExoneracion (Descripcion) VALUES
+('Exoneración Diplomática'),
+('Exoneración por Discapacidad'),
+('Sin Exoneración');
+GO
 
-                <button type="submit"
-                    class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded-xl transition">
-                    Seleccionar
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-    </form>
+INSERT INTO MetodoPago (Nombre) VALUES
+('Cheque'),
+('Efectivo'),
+('Tarjea de Débito'),
+('Tarjeta de Crédito'),
+('Transferencia Bancaria');
+GO
 
-</div>
-{% endblock%}
+INSERT INTO TipoDocumento (Nombre, Codigo) VALUES
+('Factura', '01'),
+('Nota Crédito', '06'),
+('Nota Débito', '07'),
+('Boleta Compra', '11');
+GO
 
-{% extends 'vista_principal/bg_vistas.html' %}
-{% load static %}
-{% block content %}
-<div class="container mx-auto p-6">
-    <h2 class="text-2xl font-bold mb-6">Contrato Creado</h2>
-    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
-        <p>{{ mensaje_exito }}</p>
-    </div>
-    <p class="text-blue-200">Fecha: <span id="fecha_actual">{{ fecha_actual|date:"d/m/Y" }}</span></p>
-    <a href="{% url 'contrato_venta_view' %}?paso=1" class="px-6 py-2 bg-blue-600 text-white rounded-lg">Crear otro
-        contrato</a>
-</div>
-{% endblock %}
+Poblar tabla de Establecimiento
+INSERT INTO Establecimiento (Nombre, Direccion, CodigoEstablecimiento) VALUES
+("AutoRentHN Sucursal Principal", "Avenida Principal, Boulevard Fuerzas Armadas, Tegucigalpa", "001")
+GO
+
+Poblar tabla de Punto Emision
+INSERT INTO PuntoEmision (CodigoPuntoEmision, Descripcion, Establecimiento_id) VALUES
+('001', 'Punto Emisión Principal', 1);
+GO
+
+INSERT INTO RangoAutorizado (TipoDocumento_id, PuntoEmision_id, CAI, NumeroInicial, NumeroFinal, FechaInicio, FechaFin)
+VALUES
+(1, 1, 'CAI-001-2025', 1000, 1999, '2023-01-01', '2023-12-31'),
+(2, 1, 'CAI-002-2025', 2000, 2999, '2023-01-01', '2023-12-31'),
+(3, 1, 'CAI-003-2025', 3000, 3999, '2023-01-01', '2023-12-31'),
+(4, 1, 'CAI-004-2025', 4000, 4999, '2023-01-01', '2023-12-31');
+GO
+
+
+
+CREATE TABLE DocumentoFiscal (
+id_DocumentoFiscal INTEGER PRIMARY KEY IDENTITY(1,1),
+Contrato_id INTEGER NOT NULL,
+CAI VARCHAR(30) NOT NULL,
+RangoAutorizado_id INTEGER NOT NULL,
+NumeroDocumentoFiscal INTEGER NOT NULL,
+FechaEmision DATETIME DEFAULT GETDATE(),
+EsExonerado BIT DEFAULT 0,
+Subtotal DECIMAL(13,2) NOT NULL,
+ImpuestoTotal DECIMAL(13,2) NOT NULL,
+Total Decimal(13,2) NOT NULL,
+Estado VARCHAR(100) NOT NULL CHECK (Estado IN ('Emitido', 'Anulado', 'Pendiente')),
+FOREIGN KEY (RangoAutorizado_id) REFERENCES RangoAutorizado(id_RangoAutorizado),
+FOREIGN KEY (Contrato_id) REFERENCES Contrato(id_Contrato)
+);
+GO
+
+CREATE TABLE DetalleDocumentoFiscal (
+id_DetalleDocumentoFiscal INTEGER PRIMARY KEY IDENTITY(1,1),
+DocumentoFiscal_id INTEGER NOT NULL,
+Vehiculo_id INTEGER NOT NULL,
+Descripcion VARCHAR(200) NOT NULL,
+Cantidad INTEGER NOT NULL,
+PrecioUnitario DECIMAL(13,2) NOT NULL,
+Impuesto DECIMAL(13,2) NOT NULL,
+TotalLinea DECIMAL(13,2) NOT NULL,
+FOREIGN KEY (Vehiculo_id) REFERENCES Vehiculo(id_Vehiculo)
+);
+GO
+
+CREATE TABLE PagoDocumentoFiscal (
+id_PagoDocumentoFiscal INTEGER PRIMARY KEY IDENTITY(1,1),
+DocumentoFiscal_id INTEGER NOT NULL,
+MetodoPago_id INTEGER NOT NULL,
+Monto DECIMAL(13,2) NOT NULL,
+Referencia VARCHAR(50),
+FOREIGN KEY (DocumentoFiscal_id) REFERENCES DocumentoFiscal(id_DocumentoFiscal),
+FOREIGN KEY (MetodoPago_id) REFERENCES MetodoPago(id_MetodoPago)
+);
+GO
+
+CREATE TABLE PuntoEmision (
+id_PuntoEmision INTEGER PRIMARY KEY IDENTITY(1,1),
+CodigoPuntoEmision VARCHAR(3) NOT NULL UNIQUE,
+Descripcion TEXT,
+Establecimiento_id INTEGER NOT NULL,
+FOREIGN KEY (Establecimiento_id) REFERENCES Establecimiento(id_Establecimiento)
+);
+GO
+
+CREATE TABLE RangoAutorizado (
+id_RangoAutorizado INTEGER PRIMARY KEY IDENTITY(1,1),
+TipoDocumento_id INTEGER NOT NULL,
+PuntoEmision_id INTEGER NOT NULL,
+CAI VARCHAR(30) NOT NULL,
+NumeroInicial INTEGER NOT NULL,
+NumeroFinal INTEGER NOT NULL,
+FechaInicio DATETIME NOT NULL,
+FechaFin DATETIME NOT NULL,
+FOREIGN KEY (TipoDocumento_id) REFERENCES TipoDocumento(id_TipoDocumento),
+FOREIGN KEY (PuntoEmision_id) REFERENCES PuntoEmision(id_PuntoEmision)
+);
+GO
+
+CREATE TABLE InformacionFiscal (
+id_InformacionFiscal INTEGER PRIMARY KEY IDENTITY(1,1),
+RTN VARCHAR(30) NOT NULL,
+TipoContribuyente VARCHAR(20),
+FechaRegistro DATE DEFAULT GETDATE(),
+Persona_id INTEGER NOT NULL,
+TipoExoneracion_id INTEGER,
+FOREIGN KEY (Persona_id) REFERENCES Persona(id_Persona),
+FOREIGN KEY (TipoExoneracion_id) REFERENCES Persona(id_TipoExoneracion)
+);
+GO
+
+CREATE TABLE Establecimiento (
+id_Establecimiento INTEGER PRIMARY KEY IDENTITY(1,1),
+Nombre VARCHAR(100) NOT NULL,
+Direccion TEXT NOT NULL,
+CodigoEstablecimiento VARCHAR(12)
+);
+GO
+
+CREATE TABLE TipoExoneracion (
+id_TipoExoneracion INTEGER PRIMARY KEY IDENTITY(1,1),
+Descripcion VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE TipoDocumento (
+id_TipoDocumento INTEGER PRIMARY KEY IDENTITY(1,1),
+Nombre VARCHAR(100) NOT NULL,
+Codigo VARCHAR(2) NOT NULL
+);
+GO

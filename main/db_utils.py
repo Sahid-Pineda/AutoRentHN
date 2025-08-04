@@ -60,8 +60,6 @@ def ejecutar_insert_retorna_id(query, params=None, conn=None, cursor=None):
 
     try:
         query_final = query.strip() + "; SELECT CAST(SCOPE_IDENTITY() AS INT);"
-        print("Query ejecutada:", query_final)
-        print("Con params:", params)
 
         if params:
             cursor.execute(query_final, params)
