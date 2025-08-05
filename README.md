@@ -44,6 +44,7 @@ Abrir terminal y ubicarse en la carpeta donde querés clonar el repo.
 5. Instalar dependencias con pip install -r requirements.txt.
 
 > (Opcional en Django) Correr migraciones: python manage.py migrate.
+> Crear la base de datos e insertar los catalogos que se encuentran en la carpeta [sql]
 
 6. Ejecutar el servidor con python manage.py runserver.
 
