@@ -18,6 +18,13 @@ from .services import traer_contrato_venta_id, traer_contrato_alquiler_id,regist
 from .services import obtener_siguiente_numero_factura, traer_contrato_id, traer_documentos_fiscales
 
 # Create your views here.
+
+# Empleados
+# maria.rodriguez@autorent.com
+# contra: Maria123
+
+# diego.maradona@autorent.com
+# contra: Maradona123
 logger = logging.getLogger(__name__)
 
 ruta_terminos_venta = os.path.join(settings.BASE_DIR, 'main' ,'templates' ,'contratos', 'textos_legales', 'terminos_venta.txt')
