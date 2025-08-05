@@ -20,14 +20,14 @@ AutoRentHN está diseñado para manejar el proceso de alquiler y venta de vehíc
 
 ## Requisitos Previos
 Antes de configurar el proyecto, asegúrate de tener instalado lo siguiente:
-- **Python** (versión 3.8 o superior)
+- **Python**
 - **Git**
-- **pip** (gestor de paquetes de Python)
+- **pip** (gestor de paquetes de Python
 
 ## Instrucciones de Configuración
 Sigue estos pasos para clonar y configurar el proyecto AutoRentHN localmente:
 
-1. **Clonar el Repositorio**  
+**Clonar el Repositorio**  
 Pasos para clonar y levantar el proyecto
 Abrir terminal y ubicarse en la carpeta donde querés clonar el repo.
 
@@ -44,6 +44,7 @@ Abrir terminal y ubicarse en la carpeta donde querés clonar el repo.
 5. Instalar dependencias con pip install -r requirements.txt.
 
 > (Opcional en Django) Correr migraciones: python manage.py migrate.
+
 > Crear la base de datos e insertar los catalogos que se encuentran en la carpeta [sql]
 
 6. Ejecutar el servidor con python manage.py runserver.
